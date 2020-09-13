@@ -4,7 +4,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -22,7 +21,7 @@ import java.util.*;
  * 还不错
  */
 public class SeleniumTest {
-    static WebDriver driver = new ChromeDriver();
+    // static WebDriver driver = new ChromeDriver();
 
     public static void main(String[] args) throws Exception {
 
@@ -77,28 +76,34 @@ public class SeleniumTest {
         // driver.quit();
     }
 
+    /**
+     * chrome启动参数设置和快捷键试用
+     */
     public static void h5() {
+        ChromeOptions chromeoptions = new ChromeOptions();
+        //无头浏览
+        //chromeoptions.addArguments("--headless");
+        //禁用图片
+        //chromeoptions.addArguments("blink-settings=imagesEnabled=false");
+
+
+        //模拟h5可以
         Map<String, String> mobileEmulation = new HashMap<String, String>();
         //设置设备,例如:Google Nexus 7/Apple iPhone 6
         //mobileEmulation.put("deviceName", "Google Nexus 7");
         //这里是要使用的模拟器名称，就是浏览器中模拟器中的顶部型号
-        mobileEmulation.put("deviceName", "iPad");
-        Map<String, Object> chromeOptions = new HashMap<String, Object>();
-        chromeOptions.put("mobileEmulation", mobileEmulation);
-
-        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-        capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+        mobileEmulation.put("deviceName", "iPhone X");
+        //chromeoptions.setExperimentalOption("mobileEmulation", mobileEmulation);
         try {
             System.out.println("开始启动driver~~~");
-            ChromeDriver driver = new ChromeDriver(capabilities);
+            ChromeDriver driver = new ChromeDriver(chromeoptions);
             System.out.println("启动driver成功~~~");
             driver.get("https://www.baidu.com");
             //可以
-           driver.findElement(By.tagName("body")).sendKeys(Keys.chord(Keys.CONTROL, "a"));
-          /*   driver.findElement(By.tagName("html")).sendKeys(Keys.F12);
-            driver.findElement(By.tagName("html")).sendKeys(Keys.chord(Keys.CONTROL, "T"));*/
+            // driver.findElement(By.tagName("body")).sendKeys(Keys.chord(Keys.CONTROL, "a"));
 
-            //new Actions(driver).keyDown(Keys.CONTROL).keyDown(Keys.ALT).keyDown("A").keyUp(Keys.CONTROL).keyUp(Keys.ALT).keyUp("A").perform();
+            driver.findElement(By.tagName("body")).sendKeys(Keys.CONTROL , "t");
+
 
             //new Actions(driver).keyDown(Keys.LEFT_CONTROL).sendKeys("t").keyUp(Keys.LEFT_CONTROL).perform();
             /*Robot robot0 = new Robot();
@@ -112,10 +117,14 @@ public class SeleniumTest {
            /*  robot0.keyRelease(KeyEvent.VK_CONTROL);
             robot0.keyRelease(KeyEvent.VK_T);*/
 
+            //打开新标签页或者打开指定网页 可以的
+          /*
+　　　         // 打开一个空的新标签
+　　　         js.executeScript( "window.open('about:blank');" );
 
-            String s="window.open(\"https://www.baidu.com\",\"_blank\");";
+           String s="window.open(\"https://www.google.com\",\"_blank\");";
             JavascriptExecutor js = driver;
-            js.executeScript(s);
+            js.executeScript(s);*/
         } catch (Exception e) {
             System.out.println("启动driver失败~~~");
             System.out.println(e.getMessage());
