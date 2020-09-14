@@ -1,5 +1,7 @@
 package com.swust;
 
+import cn.hutool.core.util.StrUtil;
+import lombok.Data;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -7,10 +9,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.awt.Dimension;
-import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.*;
 
 /**
@@ -20,16 +19,34 @@ import java.util.*;
  * selenium试用
  * 还不错
  */
+@Data
 public class SeleniumTest {
-    // static WebDriver driver = new ChromeDriver();
+
+
+    private WebDriver driver;
+
+    public WebDriver initDriver() {
+        if (null == driver) {
+            this.driver = new ChromeDriver();
+        }
+        return driver;
+    }
 
     public static void main(String[] args) throws Exception {
+        SeleniumTest seleniumTest = new SeleniumTest();
+        seleniumTest.initDriver();
 
-        h5();
-   /*     for (int i = 0; i < 3; i++) {
-            hzCheck(driver);
+        // h5();
+
+        //慧择核保
+        //外网
+        //String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
+        //p版
+        String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
+        seleniumTest.openBrowser(url);
+        for (int i = 0; i < 1; i++) {
+            seleniumTest.fullCheckInfo();
         }
-*/
 
         //test();
     }
@@ -102,7 +119,7 @@ public class SeleniumTest {
             //可以
             // driver.findElement(By.tagName("body")).sendKeys(Keys.chord(Keys.CONTROL, "a"));
 
-            driver.findElement(By.tagName("body")).sendKeys(Keys.CONTROL , "t");
+            driver.findElement(By.tagName("body")).sendKeys(Keys.CONTROL, "t");
 
 
             //new Actions(driver).keyDown(Keys.LEFT_CONTROL).sendKeys("t").keyUp(Keys.LEFT_CONTROL).perform();
@@ -132,17 +149,30 @@ public class SeleniumTest {
 
     }
 
-    public static void hzCheck(WebDriver driver) throws Exception {
-        String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
-
+    public void openBrowser(String url) {
+        if (StrUtil.isEmpty(url)) {
+            //外网
+            // url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
+            //p版
+            url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
+        }
         driver.get(url);
-        WebDriver.Window window = driver.manage().window();
+    }
+
+    public void quitBrowser() {
+        driver.quit();
+    }
+
+    public void fullCheckInfo() {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+/*        WebDriver.Window window = driver.manage().window();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screen = toolkit.getScreenSize();
         window.setSize(new org.openqa.selenium.Dimension((int) (screen.getWidth() / 10 * 7), (int) (screen.getHeight() / 10 * 8)));
-        window.setPosition(new org.openqa.selenium.Point(200, 200));
+        window.setPosition(new org.openqa.selenium.Point(200, 200));*/
 
+        //是否有取消按钮，有就点击
         WebDriverWait wait0 = new WebDriverWait(driver, 1);
         try {
             wait0.until(ExpectedConditions.presenceOfElementLocated(By.id("layui-layer1")));
@@ -159,31 +189,80 @@ public class SeleniumTest {
         WebDriverWait wait = new WebDriverWait(driver, 5);
         // 查找目标元素是否加载出来了（已经在页面DOM中存在）
         wait.until(ExpectedConditions.presenceOfElementLocated(By.name("cName_10")));
+
+        //投保人名字和证件
         driver.findElement(By.name("cName_10")).sendKeys("假名字");
         driver.findElement(By.name("cardNumber_10")).sendKeys("513822199912016898");
-        driver.findElement(By.name("yearlyIncome_10")).sendKeys("100000");
+
+        //投保人地址
         driver.findElement(By.name("contactAddress_10")).sendKeys("高新区新港国际花园2栋3单元5楼");
+        //投保人电话
         driver.findElement(By.name("moblie_10")).sendKeys("17745846213");
+        //投保人邮箱
         driver.findElement(By.name("email_10")).sendKeys("1774584test@huize.com");
 
+        //投保人年收入
+        if (exist(driver, By.name("yearlyIncome_10"))) {
+            driver.findElement(By.name("yearlyIncome_10")).sendKeys("100000");
+        }
 
-        //被保人和投保人关系
-        WebElement element = driver.findElement(By.name("relationInsureInsurant_20_default_1"));
-        //弹出选择框
-        element.findElement(By.tagName("b")).click();
-        //随机选择一个选项
-        List<WebElement> relationList = element.findElements(By.tagName("li"));
-        relationList.get(new Random().nextInt(relationList.size() - 1) + 1).click();
 
         //投保人证件有效期
         driver.findElement(By.name("cardPeriod_10")).click();
         List<WebElement> tdList = driver.findElements(By.tagName("td"));
-        tdList.stream().filter(t -> format.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
+        tdList.stream().filter(t -> date.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
 
-        //被保人证件有效期
-        driver.findElement(By.name("cardPeriod_20_default_1")).click();
-        List<WebElement> tdList1 = driver.findElements(By.tagName("td"));
-        tdList1.stream().filter(t -> format.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
+
+        //投保人省市下拉框
+        List<WebElement> areaList = driver.findElements(By.name("provCityText_10"));
+        areaList.get(0).findElement(By.tagName("b")).click();
+        areaList.get(0).findElements(By.tagName("li")).get(2).click();
+        //上面选择之后，会追加子标签，待完成之后才能继续添加，这里显示等待，也可以隐式等待
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        areaList.get(1).findElement(By.tagName("b")).click();
+        List<WebElement> cityLiList = areaList.get(1).findElements(By.tagName("li"));
+        cityLiList.get(new Random().nextInt(cityLiList.size() - 1) + 1).click();
+        try {
+            Thread.sleep(2000);
+            areaList.get(2).findElement(By.tagName("b")).click();
+            List<WebElement> areaListNode = areaList.get(2).findElements(By.tagName("li"));
+            areaListNode.get(new Random().nextInt(areaListNode.size() - 1) + 1).click();
+        } catch (Exception ignore) {
+            System.out.println("没有选三级地区");
+        }
+
+
+
+        //非本人投保再填充被保人
+        if (!"本人".equals(driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[1]/span")).getText())) {
+            System.out.println("存在被保人");
+
+            if (exist(driver, By.name("relationInsureInsurant_20_default_1"))) {
+                //被保人和投保人关系
+                WebElement element = driver.findElement(By.name("relationInsureInsurant_20_default_1"));
+                //弹出选择框
+                element.findElement(By.tagName("b")).click();
+                //随机选择一个选项
+                List<WebElement> relationList = element.findElements(By.tagName("li"));
+                relationList.get(new Random().nextInt(relationList.size() - 1) + 1).click();
+            }
+
+            //被保人和投保人关系
+            WebElement element = driver.findElement(By.name("relationInsureInsurant_20_default_1"));
+            //弹出选择框
+            element.findElement(By.tagName("b")).click();
+            //随机选择一个选项
+            List<WebElement> relationList = element.findElements(By.tagName("li"));
+            relationList.get(new Random().nextInt(relationList.size() - 1) + 1).click();
+
+            //被保人证件有效期
+            driver.findElement(By.name("cardPeriod_20_default_1")).click();
+            List<WebElement> tdList1 = driver.findElements(By.tagName("td"));
+            tdList1.stream().filter(t -> date.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
 
 /*        // 获取js执行器
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -196,68 +275,63 @@ public class SeleniumTest {
         endDate.sendKeys("2030-03-30");*/
 
 
-        //被保人证件结束日期
-        driver.findElement(By.name("cardPeriodEnd_20_default_1")).click();
-        //计算身份证有效期 fix(假设10年)
-        int a = 10;
-        String end = Integer.valueOf(format.substring(0, 4)) + a + "";
-        System.out.println("目标年:" + end);
-        //先选中 年
-        success:
-        while (true) {
-            List<WebElement> yearTdList = driver.findElement(By.className("calendar-year-body")).findElements(By.tagName("td"));
-            for (WebElement webElement : yearTdList) {
-                if (end.equals(webElement.getText())) {
+            //被保人证件结束日期
+            driver.findElement(By.name("cardPeriodEnd_20_default_1")).click();
+            //计算身份证有效期 fix(假设10年)
+            int a = 10;
+            String end = Integer.valueOf(date.substring(0, 4)) + a + "";
+            System.out.println("目标年:" + end);
+            //先选中 年
+            success:
+            while (true) {
+                List<WebElement> yearTdList = driver.findElement(By.className("calendar-year-body")).findElements(By.tagName("td"));
+                for (WebElement webElement : yearTdList) {
+                    if (end.equals(webElement.getText())) {
+                        webElement.click();
+                        break success;
+                    }
+                }
+                //翻页
+                WebElement element1 = driver.findElement(By.className("calendar-year-next"));
+                element1.findElement(By.tagName("span")).click();
+            }
+            //选中月
+            String month = date.substring(5, 7);
+            if (month.startsWith("0")) {
+                month = month.substring(1);
+            }
+            month += "月";
+            List<WebElement> td = driver.findElement(By.className("calendar-month-table-box")).findElements(By.tagName("td"));
+            for (WebElement webElement : td) {
+                if (webElement.getText().equals(month)) {
                     webElement.click();
-                    break success;
+                    break;
                 }
             }
-            //翻页
-            WebElement element1 = driver.findElement(By.className("calendar-year-next"));
-            element1.findElement(By.tagName("span")).click();
+            //选中 日
+            String targetDate = Integer.valueOf(date.substring(0, 4)) + a + date.substring(4);
+            List<WebElement> tdList2 = driver.findElements(By.tagName("td"));
+            tdList2.stream().filter(t -> targetDate.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
+
+
+            //被保人姓名和证件号码
+            driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
+            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys("513822199911116898");
         }
-        //选中月
-        String month = format.substring(5, 7);
-        if (month.startsWith("0")) {
-            month = month.substring(1);
-        }
-        month += "月";
-        List<WebElement> td = driver.findElement(By.className("calendar-month-table-box")).findElements(By.tagName("td"));
-        for (WebElement webElement : td) {
-            if (webElement.getText().equals(month)) {
-                webElement.click();
-                break;
-            }
-        }
-        //选中 日
-        String targetDate = Integer.valueOf(format.substring(0, 4)) + a + format.substring(4);
-        List<WebElement> tdList2 = driver.findElements(By.tagName("td"));
-        tdList2.stream().filter(t -> targetDate.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
-
-
-        //被保人姓名和证件号码
-        driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
-        driver.findElement(By.name("cardNumber_20_default_1")).sendKeys("513822199911116898");
-
-
-        //投保人省市下拉框
-        List<WebElement> areaList = driver.findElements(By.name("provCityText_10"));
-        areaList.get(0).findElement(By.tagName("b")).click();
-        areaList.get(0).findElements(By.tagName("li")).get(2).click();
-
-        //上面选择之后，会追加子标签，待完成之后才能继续添加，这里显示等待，也可以隐式等待
-        Thread.sleep(1000);
-        areaList.get(1).findElement(By.tagName("b")).click();
-
-        List<WebElement> cityLiList = areaList.get(1).findElements(By.tagName("li"));
-        cityLiList.get(new Random().nextInt(cityLiList.size() - 1) + 1).click();
-
-        Thread.sleep(2000);
-        areaList.get(2).findElement(By.tagName("b")).click();
-        List<WebElement> areaListNode = areaList.get(2).findElements(By.tagName("li"));
-        areaListNode.get(new Random().nextInt(areaListNode.size() - 1) + 1).click();
 
         //submit
-        // driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
+         driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
+    }
+
+    /**
+     * 检查元素是否存在
+     */
+    public static boolean exist(WebDriver driver, By by) {
+        try {
+            driver.findElement(by);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
