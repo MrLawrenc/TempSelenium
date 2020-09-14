@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -163,6 +164,24 @@ public class SeleniumTest {
         driver.quit();
     }
 
+    /**
+     * 如果存在就点击取消按钮(回退核保会有弹窗"是否继续投保")
+     */
+    public void ifCancelExistClick(Duration duration) {
+        WebDriverWait wait0 = new WebDriverWait(driver, duration);
+        By cancelParent = By.id("layui-layer1");
+        try {
+            wait0.until(ExpectedConditions.presenceOfElementLocated(cancelParent));
+        } catch (Exception ignore) {
+        }
+        WebElement element2 = driver.findElement(cancelParent);
+        for (WebElement element : element2.findElements(By.className("layui-layer-btn1"))) {
+            if ("取消".equals(element.getText())) {
+                element.click();
+            }
+        }
+    }
+
     public void fullCheckInfo() {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
@@ -172,21 +191,11 @@ public class SeleniumTest {
         window.setSize(new org.openqa.selenium.Dimension((int) (screen.getWidth() / 10 * 7), (int) (screen.getHeight() / 10 * 8)));
         window.setPosition(new org.openqa.selenium.Point(200, 200));*/
 
-        //是否有取消按钮，有就点击
-        WebDriverWait wait0 = new WebDriverWait(driver, 1);
-        try {
-            wait0.until(ExpectedConditions.presenceOfElementLocated(By.id("layui-layer1")));
-            WebElement element2 = driver.findElement(By.id("layui-layer1"));
-            for (WebElement element : element2.findElements(By.className("layui-layer-btn1"))) {
-                if ("取消".equals(element.getText())) {
-                    element.click();
-                }
-            }
-        } catch (Exception ignore) {
-        }
+
+        ifCancelExistClick(Duration.ofSeconds(1));
 
 
-        WebDriverWait wait = new WebDriverWait(driver, 5);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         // 查找目标元素是否加载出来了（已经在页面DOM中存在）
         wait.until(ExpectedConditions.presenceOfElementLocated(By.name("cName_10")));
 
@@ -234,7 +243,6 @@ public class SeleniumTest {
         } catch (Exception ignore) {
             System.out.println("没有选三级地区");
         }
-
 
 
         //非本人投保再填充被保人
@@ -320,7 +328,7 @@ public class SeleniumTest {
         }
 
         //submit
-         driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
+        driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
     }
 
     /**
