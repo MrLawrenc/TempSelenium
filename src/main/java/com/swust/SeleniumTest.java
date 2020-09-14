@@ -41,9 +41,9 @@ public class SeleniumTest {
 
         //慧择核保
         //外网
-        //String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
+        String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
         //p版
-        String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
+        //String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
         seleniumTest.openBrowser(url);
         for (int i = 0; i < 1; i++) {
             seleniumTest.fullCheckInfo();
@@ -173,6 +173,7 @@ public class SeleniumTest {
         try {
             wait0.until(ExpectedConditions.presenceOfElementLocated(cancelParent));
         } catch (Exception ignore) {
+            return;
         }
         WebElement element2 = driver.findElement(cancelParent);
         for (WebElement element : element2.findElements(By.className("layui-layer-btn1"))) {
@@ -213,6 +214,28 @@ public class SeleniumTest {
         //投保人年收入
         if (exist(driver, By.name("yearlyIncome_10"))) {
             driver.findElement(By.name("yearlyIncome_10")).sendKeys("100000");
+        }
+
+        //投保人职业 可以优化查找
+        By jobBy = By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[1]/div[1]/b");
+        if (exist(driver, jobBy)) {
+            By liBy = By.tagName("li");
+            driver.findElement(jobBy).click();
+            WebElement firstUl = driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[1]/div[2]/ul"));
+            List<WebElement> jobList = firstUl.findElements(liBy);
+            WebElement firstJob = jobList.get(new Random().nextInt(jobList.size() - 1) + 1);
+            firstJob.click();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[1]/b")).click();
+            WebElement secondUl = driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[2]/ul"));
+            List<WebElement> secondJobList = secondUl.findElements(liBy);
+            WebElement secondJob = secondJobList.get(new Random().nextInt(secondJobList.size() - 1) + 1);
+            secondJob.click();
         }
 
 
@@ -327,8 +350,14 @@ public class SeleniumTest {
             driver.findElement(By.name("cardNumber_20_default_1")).sendKeys("513822199911116898");
         }
 
+        //续期银行信息
+        By syr = By.xpath("//*[@id=\"insure-pannel\"]/dl[7]/div/dd[3]/input");
+        if (exist(driver, syr)) {
+            driver.findElement(syr).sendKeys("1152121223235513");
+        }
+
         //submit
-        driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
+        //driver.findElement(By.id("submit")).findElement(By.tagName("span")).click();
     }
 
     /**
