@@ -164,7 +164,9 @@ public class SeleniumTest {
     }
 
     public void quitBrowser() {
-        driver.quit();
+        if (Objects.nonNull(driver)) {
+            driver.quit();
+        }
     }
 
     /**
@@ -216,7 +218,7 @@ public class SeleniumTest {
 
         //投保人名字和证件
         driver.findElement(By.name("cName_10")).sendKeys("假名字");
-        driver.findElement(By.name("cardNumber_10")).sendKeys( ChineseIDCardNumberGenerator.getInstance().generate());
+        driver.findElement(By.name("cardNumber_10")).sendKeys(ChineseIDCardNumberGenerator.getInstance().generate());
 
         //投保人地址
         driver.findElement(By.name("contactAddress_10")).sendKeys("高新区新港国际花园2栋3单元5楼");
@@ -363,7 +365,7 @@ public class SeleniumTest {
 
             //被保人姓名和证件号码
             driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
-            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys( ChineseIDCardNumberGenerator.getInstance().generate());
+            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys(ChineseIDCardNumberGenerator.getInstance().generate());
 
             //被保人地址
             By insuredAddr = By.name("contactAddress_20_default_1");

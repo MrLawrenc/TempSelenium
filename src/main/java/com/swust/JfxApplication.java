@@ -26,6 +26,7 @@ public class JfxApplication extends Application {
         stage.setTitle("投保自动化");
 
         stage.setOnCloseRequest(e -> {
+            controller.destroy();
             Platform.exit();
         });
         stage.show();

@@ -1,10 +1,15 @@
 package com.swust.controller;
 
 import com.swust.SeleniumTest;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URL;
@@ -26,6 +31,20 @@ public class MainController implements Initializable {
     private Button fullCheckBtn;
     @FXML
     private TextField targetUrl;
+    @FXML
+    private Button preCheckConfig;
+    @FXML
+    private TableView<PreCheckConfig> preCheckConfigList;
+
+
+    @FXML
+    private TableColumn<PreCheckConfig, String> actionColumn;
+    @FXML
+    private TableColumn<PreCheckConfig, String> xpathColumn;
+    @FXML
+    private TableColumn<PreCheckConfig, String> valueColumn;
+    @FXML
+    private TableColumn<PreCheckConfig, String> scriptColumn;
 
 
     private SeleniumTest seleniumTest;
@@ -42,8 +61,74 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         this.seleniumTest = new SeleniumTest();
         CompletableFuture.runAsync(seleniumTest::initDriver);
-        bindEvent();
+
         targetUrl.setText("url");
+
+
+        initTableView();
+    }
+
+    private void initTableView() {
+        //绑定属性
+        actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
+        xpathColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+        scriptColumn.setCellValueFactory(new PropertyValueFactory<>("script"));
+
+        //可编辑
+        actionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        scriptColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        xpathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        //空表
+        ObservableList<PreCheckConfig> cellData = FXCollections.observableArrayList();
+
+        ObservableList<PreCheckConfig> data = FXCollections.observableArrayList(
+                new PreCheckConfig("Jacob", "Smith", "jacob.smith@example.com", "java脚本"),
+                new PreCheckConfig("Isabella", "Johnson", "isabella.johnson@example.com", "java脚本"),
+                new PreCheckConfig("Ethan", "Williams", "ethan.williams@example.com", "java脚本"),
+                new PreCheckConfig("Emma", "Jones", "emma.jones@example.com", "java脚本"),
+                new PreCheckConfig("Michael", "Brown", "michael.brown@example.com", "java脚本")
+        );
+        preCheckConfigList.setItems(data);
+
+        preCheckConfigList.editingCellProperty().addListener(new ChangeListener<TablePosition<PreCheckConfig, ?>>() {
+            @Override
+            public void changed(ObservableValue<? extends TablePosition<PreCheckConfig, ?>> observable, TablePosition<PreCheckConfig, ?> oldValue, TablePosition<PreCheckConfig, ?> newValue) {
+                System.out.println("sssssssssss");
+            }
+        });
+        // 可以实时触发
+        // preCheckConfigList.getItems().remove(1,3);
+    }
+
+    public void openBrowser() {
+        //openBtn.setDisable(true);
+        CompletableFuture.runAsync(() -> seleniumTest.openBrowser(targetUrl.getText())).whenComplete((r, t) -> {
+            if (t == null) {
+                opened.set(true);
+            } else {
+                log.error("浏览器开启失败", t);
+                seleniumTest.quitBrowser();
+                //openBtn.setDisable(true);
+            }
+        });
+    }
+
+    public void quitBrowser() {
+        if (opened.get()) {
+            CompletableFuture.runAsync(() -> seleniumTest.quitBrowser());
+        } else {
+            log.warn("浏览器未开启");
+        }
+    }
+
+    /**
+     * 自动填充
+     */
+    public void fullCheckInfo() {
+        seleniumTest.fullCheckInfo();
     }
 
     /**
@@ -52,36 +137,4 @@ public class MainController implements Initializable {
     public void destroy() {
         seleniumTest.quitBrowser();
     }
-
-    /**
-     * 事件绑定
-     */
-    private void bindEvent() {
-        //开
-        openBtn.setOnAction(event -> {
-            //openBtn.setDisable(true);
-            CompletableFuture.runAsync(() -> seleniumTest.openBrowser(targetUrl.getText())).whenComplete((r, t) -> {
-                if (t == null) {
-                    opened.set(true);
-                } else {
-                    log.error("浏览器开启失败", t);
-                    seleniumTest.quitBrowser();
-                    //openBtn.setDisable(true);
-                }
-            });
-        });
-        //关
-        closeBtn.setOnAction(event -> {
-            if (opened.get()) {
-                CompletableFuture.runAsync(() -> seleniumTest.quitBrowser());
-            } else {
-                log.warn("浏览器未开启");
-            }
-        });
-
-        //自动填充
-        fullCheckBtn.setOnAction(event -> seleniumTest.fullCheckInfo());
-    }
-
-
 }
