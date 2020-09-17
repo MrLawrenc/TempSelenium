@@ -1,5 +1,8 @@
 package com.swust;
 
+import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
+import cn.binarywang.tools.generator.ChineseMobileNumberGenerator;
+import cn.binarywang.tools.generator.bank.BankCardNumberGenerator;
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import org.openqa.selenium.*;
@@ -184,6 +187,7 @@ public class SeleniumTest {
     }
 
     public void fullCheckInfo() {
+        Random random = new Random();
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 /*        WebDriver.Window window = driver.manage().window();
@@ -200,14 +204,24 @@ public class SeleniumTest {
         // 查找目标元素是否加载出来了（已经在页面DOM中存在）
         wait.until(ExpectedConditions.presenceOfElementLocated(By.name("cName_10")));
 
+        //为谁投保
+        By insurantType = By.id("insurantType");
+        if (exist(driver, insurantType)) {
+            driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[1]/b")).click();
+
+            List<WebElement> insurantTypeElement = driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[2]/ul")).findElements(By.tagName("li"));
+            insurantTypeElement.get(random.nextInt(insurantTypeElement.size())).click();
+        }
+
+
         //投保人名字和证件
         driver.findElement(By.name("cName_10")).sendKeys("假名字");
-        driver.findElement(By.name("cardNumber_10")).sendKeys("513822199912016898");
+        driver.findElement(By.name("cardNumber_10")).sendKeys( ChineseIDCardNumberGenerator.getInstance().generate());
 
         //投保人地址
         driver.findElement(By.name("contactAddress_10")).sendKeys("高新区新港国际花园2栋3单元5楼");
         //投保人电话
-        driver.findElement(By.name("moblie_10")).sendKeys("17745846213");
+        driver.findElement(By.name("moblie_10")).sendKeys(ChineseMobileNumberGenerator.getInstance().generate());
         //投保人邮箱
         driver.findElement(By.name("email_10")).sendKeys("1774584test@huize.com");
 
@@ -228,14 +242,15 @@ public class SeleniumTest {
 
             try {
                 Thread.sleep(1000);
+
+                driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[1]/b")).click();
+                WebElement secondUl = driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[2]/ul"));
+                List<WebElement> secondJobList = secondUl.findElements(liBy);
+                WebElement secondJob = secondJobList.get(new Random().nextInt(secondJobList.size() - 1) + 1);
+                secondJob.click();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[1]/b")).click();
-            WebElement secondUl = driver.findElement(By.xpath("//*[@id=\"insure-pannel\"]/dl[3]/dd[8]/div/div[2]/div[2]/ul"));
-            List<WebElement> secondJobList = secondUl.findElements(liBy);
-            WebElement secondJob = secondJobList.get(new Random().nextInt(secondJobList.size() - 1) + 1);
-            secondJob.click();
         }
 
 
@@ -252,12 +267,13 @@ public class SeleniumTest {
         //上面选择之后，会追加子标签，待完成之后才能继续添加，这里显示等待，也可以隐式等待
         try {
             Thread.sleep(1000);
+            areaList.get(1).findElement(By.tagName("b")).click();
+            List<WebElement> cityLiList = areaList.get(1).findElements(By.tagName("li"));
+            cityLiList.get(new Random().nextInt(cityLiList.size() - 1) + 1).click();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("没有选二级地区");
         }
-        areaList.get(1).findElement(By.tagName("b")).click();
-        List<WebElement> cityLiList = areaList.get(1).findElements(By.tagName("li"));
-        cityLiList.get(new Random().nextInt(cityLiList.size() - 1) + 1).click();
+
         try {
             Thread.sleep(2000);
             areaList.get(2).findElement(By.tagName("b")).click();
@@ -347,13 +363,39 @@ public class SeleniumTest {
 
             //被保人姓名和证件号码
             driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
-            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys("513822199911116898");
+            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys( ChineseIDCardNumberGenerator.getInstance().generate());
+
+            //被保人地址
+            By insuredAddr = By.name("contactAddress_20_default_1");
+            if (exist(driver, insuredAddr)) {
+                driver.findElement(insuredAddr).sendKeys("我是被保人地址登记卡数据库大数据肯定撒即可第");
+            }
+
+            //被保人email
+            By insuredEmail = By.name("email_20_default_1");
+            if (exist(driver, insuredEmail)) {
+                driver.findElement(insuredEmail).sendKeys("943903861@163.com");
+            }
+
+            //被保人年收入
+            By insuredYearCome = By.name("yearlyIncome_20_default_1");
+            if (exist(driver, insuredYearCome)) {
+                driver.findElement(insuredYearCome).sendKeys("100000");
+            }
+            //被保人电话
+            By insuredPhone = By.name("moblie_20_default_1");
+            if (exist(driver, insuredPhone)) {
+                WebElement insuredP = driver.findElement(insuredPhone);
+                insuredP.clear();
+                insuredP.sendKeys(ChineseMobileNumberGenerator.getInstance().generate());
+            }
+
         }
 
         //续期银行信息
-        By syr = By.xpath("//*[@id=\"insure-pannel\"]/dl[7]/div/dd[3]/input");
-        if (exist(driver, syr)) {
-            driver.findElement(syr).sendKeys("1152121223235513");
+        By payAccount = By.name("payAccount_107");
+        if (exist(driver, payAccount)) {
+            driver.findElement(payAccount).sendKeys(BankCardNumberGenerator.getInstance().generate());
         }
 
         //submit

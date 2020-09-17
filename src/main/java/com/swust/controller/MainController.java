@@ -4,6 +4,7 @@ import com.swust.SeleniumTest;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URL;
@@ -23,6 +24,8 @@ public class MainController implements Initializable {
     private Button closeBtn;
     @FXML
     private Button fullCheckBtn;
+    @FXML
+    private TextField targetUrl;
 
 
     private SeleniumTest seleniumTest;
@@ -40,6 +43,7 @@ public class MainController implements Initializable {
         this.seleniumTest = new SeleniumTest();
         CompletableFuture.runAsync(seleniumTest::initDriver);
         bindEvent();
+        targetUrl.setText("url");
     }
 
     /**
@@ -55,14 +59,14 @@ public class MainController implements Initializable {
     private void bindEvent() {
         //开
         openBtn.setOnAction(event -> {
-            openBtn.setDisable(true);
-            CompletableFuture.runAsync(() -> seleniumTest.openBrowser(CHECK_URL)).whenComplete((r, t) -> {
+            //openBtn.setDisable(true);
+            CompletableFuture.runAsync(() -> seleniumTest.openBrowser(targetUrl.getText())).whenComplete((r, t) -> {
                 if (t == null) {
                     opened.set(true);
                 } else {
                     log.error("浏览器开启失败", t);
                     seleniumTest.quitBrowser();
-                    openBtn.setDisable(true);
+                    //openBtn.setDisable(true);
                 }
             });
         });
