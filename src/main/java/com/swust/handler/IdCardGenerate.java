@@ -13,7 +13,25 @@ import java.util.Random;
  * <p>
  * 身份证生成器
  */
-public class IdCardGenerate extends GenerateValueHandler {
+public final class IdCardGenerate extends GenerateValueHandler {
+
+    /**
+     * 生日是否随机
+     */
+    private boolean random = true;
+    private int year;
+    private int month;
+    private int dayOfMonth;
+
+    public IdCardGenerate() {
+    }
+
+    public IdCardGenerate(int year, int month, int dayOfMonth) {
+        this.random = false;
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+    }
 
     @Override
     public String generateV() {
@@ -23,7 +41,8 @@ public class IdCardGenerate extends GenerateValueHandler {
                 + StringUtils.leftPad((RandomUtils.nextInt(0, 9998) + 1) + "", 4,
                 "0");
 
-        String birthday = defaultRandomDate();
+        String birthday = random ? defaultRandomDate() : customBirthday(year, month, dayOfMonth);
+        System.out.println(birthday);
         String randomCode = String.valueOf(1000 + RandomUtils.nextInt(0, 999))
                 .substring(1);
         String pre = areaCode + birthday + randomCode;
@@ -33,12 +52,12 @@ public class IdCardGenerate extends GenerateValueHandler {
 
     static String defaultRandomDate() {
         Random random = new Random();
-        int month = random.nextInt(12)+1;
+        int month = random.nextInt(12) + 1;
         return random.nextInt(30) + 1970 + "" + (month < 10 ? "0" + month : month + "") + (random.nextInt(28) + 1);
     }
 
     /**
-     * 自定义身份证生日 yyyyMMdd
+     * 自定义身份证生日
      */
     static String customBirthday(int year, int month, int dayOfMonth) {
         return year + (month < 10 ? "0" + month : month + "") + (dayOfMonth < 10 ? "0" + dayOfMonth : "" + dayOfMonth);
@@ -50,7 +69,7 @@ public class IdCardGenerate extends GenerateValueHandler {
         String[] Wi = {"7", "9", "10", "5", "8", "4", "2", "1", "6", "3", "7",
                 "9", "10", "5", "8", "4", "2"};
         int tmp = 0;
-        for (int i = 0; i < Wi.length; i++) {
+        for (int i = 0; i < cardId.length(); i++) {
             tmp += Integer.parseInt(String.valueOf(cardId.charAt(i)))
                     * Integer.parseInt(Wi[i]);
         }

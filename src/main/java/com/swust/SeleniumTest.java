@@ -4,6 +4,7 @@ import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.ChineseMobileNumberGenerator;
 import cn.binarywang.tools.generator.bank.BankCardNumberGenerator;
 import cn.hutool.core.util.StrUtil;
+import com.swust.handler.IdCardGenerate;
 import lombok.Data;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -210,7 +211,7 @@ public class SeleniumTest {
         By insurantType = By.id("insurantType");
         if (exist(driver, insurantType)) {
             driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[1]/b")).click();
-
+           // TimeUnit.SECONDS.sleep(1);
             List<WebElement> insurantTypeElement = driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[2]/ul")).findElements(By.tagName("li"));
             insurantTypeElement.get(random.nextInt(insurantTypeElement.size())).click();
         }
@@ -300,13 +301,6 @@ public class SeleniumTest {
                 relationList.get(new Random().nextInt(relationList.size() - 1) + 1).click();
             }
 
-            //被保人和投保人关系
-            WebElement element = driver.findElement(By.name("relationInsureInsurant_20_default_1"));
-            //弹出选择框
-            element.findElement(By.tagName("b")).click();
-            //随机选择一个选项
-            List<WebElement> relationList = element.findElements(By.tagName("li"));
-            relationList.get(new Random().nextInt(relationList.size() - 1) + 1).click();
 
             //被保人证件有效期
             driver.findElement(By.name("cardPeriod_20_default_1")).click();
@@ -365,6 +359,7 @@ public class SeleniumTest {
 
             //被保人姓名和证件号码
             driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
+            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys(new IdCardGenerate().generateV());
             driver.findElement(By.name("cardNumber_20_default_1")).sendKeys(ChineseIDCardNumberGenerator.getInstance().generate());
 
             //被保人地址

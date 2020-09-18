@@ -1,5 +1,6 @@
 package com.swust.controller;
 
+import com.swust.ConfigUtil;
 import com.swust.SeleniumTest;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,6 +47,11 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<PreCheckConfig, String> scriptColumn;
 
+    @FXML
+    private ComboBox<Integer> companyIdBox;
+    @FXML
+    private ComboBox<Integer> productIdBox;
+
 
     private SeleniumTest seleniumTest;
     /**
@@ -65,8 +71,12 @@ public class MainController implements Initializable {
         targetUrl.setText("url");
 
 
+        ConfigUtil.loadCompanyAndProduct(companyIdBox,productIdBox);
+
+
         initTableView();
     }
+
 
     private void initTableView() {
         //绑定属性

@@ -8,6 +8,9 @@ import org.junit.Test;
 public class TestHandler {
     @Test
     public void testIdCard() {
-        System.out.println(new IdCardGenerate().generateV());
+        for (int i = 0; i < 200; i++) {
+            System.out.println(new IdCardGenerate().generateV());
+            System.out.println("-------------------");
+        }
     }
 }
