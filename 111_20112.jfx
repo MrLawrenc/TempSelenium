@@ -1,0 +1,8 @@
+https://www.baidu.com/
+https://www.baidu.com/
+{
+    "action": "sendKey",
+    "location": "//*[@id=\"kw\"]",
+    "value": "王二麻子",
+    "script": ""
+}

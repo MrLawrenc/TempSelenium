@@ -71,7 +71,9 @@ public class MainController implements Initializable {
         targetUrl.setText("url");
 
 
-        ConfigUtil.loadCompanyAndProduct(companyIdBox,productIdBox);
+        ConfigUtil.initConfig();
+
+        ConfigUtil.loadCompanyAndProduct(companyIdBox, productIdBox,preCheckConfigList);
 
 
         initTableView();
@@ -91,15 +93,10 @@ public class MainController implements Initializable {
         xpathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        //空表
-        ObservableList<PreCheckConfig> cellData = FXCollections.observableArrayList();
 
         ObservableList<PreCheckConfig> data = FXCollections.observableArrayList(
                 new PreCheckConfig("Jacob", "Smith", "jacob.smith@example.com", "java脚本"),
-                new PreCheckConfig("Isabella", "Johnson", "isabella.johnson@example.com", "java脚本"),
-                new PreCheckConfig("Ethan", "Williams", "ethan.williams@example.com", "java脚本"),
-                new PreCheckConfig("Emma", "Jones", "emma.jones@example.com", "java脚本"),
-                new PreCheckConfig("Michael", "Brown", "michael.brown@example.com", "java脚本")
+                new PreCheckConfig("Isabella", "Johnson", "isabella.johnson@example.com", "java脚本")
         );
         preCheckConfigList.setItems(data);
 
@@ -109,8 +106,6 @@ public class MainController implements Initializable {
                 System.out.println("sssssssssss");
             }
         });
-        // 可以实时触发
-        // preCheckConfigList.getItems().remove(1,3);
     }
 
     public void openBrowser() {
