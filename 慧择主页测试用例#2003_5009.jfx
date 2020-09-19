@@ -1,0 +1,29 @@
+https://www.baidu.com/
+https://www.baidu.com/
+[
+    {
+        "action": "sendKeys",
+        "location": "//*[@id=\"kw\"]",
+        "values": "慧择网",
+        "script": ""
+    },
+    {
+        "action": "click",
+        "location": "//*[@id=\"su\"]",
+        "values": "这是点击事件，没有值",
+        "script": ""
+    },
+         {
+             "action": "sleep",
+             "location": "//*[@id=\"su\"]",
+             "values": "2000",
+             "script": ""
+         }
+    ,
+    {
+        "action": "click",
+        "location": "//*[@id=\"m1st8ill\"]/div/h2/a[1]",
+        "values": "进入慧择官网",
+        "script": ""
+    }
+]

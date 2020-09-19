@@ -25,7 +25,7 @@ import java.util.*;
  * 还不错
  */
 @Data
-public class SeleniumTest {
+public class SeleniumApp {
 
 
     private WebDriver driver;
@@ -38,8 +38,8 @@ public class SeleniumTest {
     }
 
     public static void main(String[] args) throws Exception {
-        SeleniumTest seleniumTest = new SeleniumTest();
-        seleniumTest.initDriver();
+        SeleniumApp seleniumApp = new SeleniumApp();
+        seleniumApp.initDriver();
 
         // h5();
 
@@ -48,9 +48,9 @@ public class SeleniumTest {
         String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
         //p版
         //String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
-        seleniumTest.openBrowser(url);
+        seleniumApp.openBrowser(url);
         for (int i = 0; i < 1; i++) {
-            seleniumTest.fullCheckInfo();
+            seleniumApp.fullCheckInfo();
         }
 
         //test();
@@ -211,7 +211,7 @@ public class SeleniumTest {
         By insurantType = By.id("insurantType");
         if (exist(driver, insurantType)) {
             driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[1]/b")).click();
-           // TimeUnit.SECONDS.sleep(1);
+            // TimeUnit.SECONDS.sleep(1);
             List<WebElement> insurantTypeElement = driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[2]/ul")).findElements(By.tagName("li"));
             insurantTypeElement.get(random.nextInt(insurantTypeElement.size())).click();
         }
@@ -409,5 +409,16 @@ public class SeleniumTest {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public void newPage() {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.open('about:blank');");
+
+    }
+
+    public void newPage(String url) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.open(" + url + ",\"_blank\");");
     }
 }

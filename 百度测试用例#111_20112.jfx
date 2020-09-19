@@ -1,8 +1,16 @@
 https://www.baidu.com/
 https://www.baidu.com/
-{
-    "action": "sendKey",
-    "location": "//*[@id=\"kw\"]",
-    "value": "王二麻子",
-    "script": ""
-}
+[
+    {
+        "action": "sendKeys",
+        "location": "//*[@id=\"kw\"]",
+        "values": "王二麻子",
+        "script": ""
+    },
+    {
+        "action": "click",
+        "location": "//*[@id=\"su\"]",
+        "values": "这是点击事件，没有值",
+        "script": ""
+    }
+]

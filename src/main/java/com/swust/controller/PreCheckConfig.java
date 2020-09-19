@@ -17,7 +17,7 @@ import lombok.Setter;
 public class PreCheckConfig {
 
     /**
-     * 元素位置,统一通过xpath定位
+     * 元素位置,目前只支持xpath定位
      */
     private String location;
     /**
@@ -26,9 +26,9 @@ public class PreCheckConfig {
     private String action;
 
     /**
-     * 可能不存在，如当action为点击事件时
+     * 可能不存在，如当action为点击事件时,一个string集合，以#分割
      */
-    private String value;
+    private String values;
 
     /**
      * 脚本，目前只支持java

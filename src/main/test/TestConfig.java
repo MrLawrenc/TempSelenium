@@ -1,4 +1,4 @@
-import com.swust.ConfigUtil;
+import com.swust.utils.ConfigUtil;
 import org.junit.Test;
 
 /**

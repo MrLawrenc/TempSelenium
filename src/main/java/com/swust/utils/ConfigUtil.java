@@ -1,4 +1,4 @@
-package com.swust;
+package com.swust.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.HashBasedTable;
@@ -32,6 +32,7 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class ConfigUtil {
     public static List<ProductConfig> configList;
+    public static ProductConfig currentConfig;
     public static Table<Integer, Integer, ProductConfig> configTable = HashBasedTable.create();
 
     /**
@@ -82,8 +83,8 @@ public class ConfigUtil {
                     sb.append(s);
                     s = reader.readLine();
                 }
-                PreCheckConfig preCheckConfig = JSON.parseObject(sb.toString(), PreCheckConfig.class);
-                productConfig.setPreCheckConfig(preCheckConfig);
+                List<PreCheckConfig> preCheckConfigList = JSON.parseArray(sb.toString(), PreCheckConfig.class);
+                productConfig.setPreCheckConfigList(preCheckConfigList);
             } catch (Exception e) {
                 log.error("read config fail", e);
             }
@@ -117,7 +118,7 @@ public class ConfigUtil {
         //绑定产品id，使得配置实时刷新
         productIdBox.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> ConfigUtil.loadPreCheckConfig(companyIdBox.getValue(), newValue,
-                        controller.getPreCheckConfigList(), controller.getCaseName(), controller.getTargetUrl()));
+                        controller.getPreCheckConfigTable(), controller.getCaseName(), controller.getTargetUrl()));
     }
 
     public static void loadPreCheckConfig(Integer companyId, Integer productId, TableView<PreCheckConfig> preCheckConfigList
@@ -135,7 +136,10 @@ public class ConfigUtil {
 
         for (ProductConfig config : configList) {
             if (config.getCompanyId().equals(companyId) && config.getProductId().equals(productId)) {
-                preCheckConfigList.getItems().add(config.getPreCheckConfig());
+
+                currentConfig=config;
+
+                preCheckConfigList.getItems().addAll(config.getPreCheckConfigList());
 
                 //加载测试用例标题
                 caseName.setText(config.getCaseName());

@@ -1,10 +1,13 @@
 package com.swust.controller;
 
-import com.swust.ConfigUtil;
-import com.swust.SeleniumTest;
+import com.alibaba.fastjson.JSON;
+import com.swust.SeleniumApp;
 import com.swust.entity.ProductConfig;
+import com.swust.utils.ConfigUtil;
+import com.swust.utils.SeleniumCmdParser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -34,8 +37,6 @@ public class MainController implements Initializable {
     private Button openBtn;
     @FXML
     private Button closeBtn;
-    @FXML
-    private Button fullCheckBtn;
     /**
      * fix 应更改为下拉框
      */
@@ -48,7 +49,7 @@ public class MainController implements Initializable {
      * 核保之前的配置表
      */
     @FXML
-    private TableView<PreCheckConfig> preCheckConfigList;
+    private TableView<PreCheckConfig> preCheckConfigTable;
 
 
     /**
@@ -78,7 +79,7 @@ public class MainController implements Initializable {
     private Text caseName;
 
 
-    private SeleniumTest seleniumTest;
+    private SeleniumApp seleniumApp;
     /**
      * 标记浏览器是否打开
      */
@@ -90,8 +91,8 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //this.seleniumTest = new SeleniumTest();
-        //CompletableFuture.runAsync(seleniumTest::initDriver);
+        this.seleniumApp = new SeleniumApp();
+        CompletableFuture.runAsync(seleniumApp::initDriver);
 
 
         ConfigUtil.initConfig();
@@ -107,11 +108,15 @@ public class MainController implements Initializable {
         initTableView(columnList);
     }
 
-
+    /**
+     * 配置表结构初始化
+     */
     private void initTableView(List<TableColumn<PreCheckConfig, String>> columnList) {
         //绑定属性
         Field[] fields = PreCheckConfig.class.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
+            columnList.get(i).setText(fields[i].getName());
+
             //将每个字段名作为列名
             columnList.get(i).setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
@@ -123,20 +128,23 @@ public class MainController implements Initializable {
                 new PreCheckConfig("Jacob", "Smith", "jacob.smith@example.com", "java脚本"),
                 new PreCheckConfig("Isabella", "Johnson", "isabella.johnson@example.com", "java脚本")
         );
-        preCheckConfigList.setItems(data);
+        preCheckConfigTable.setItems(data);
     }
 
+    /**
+     * 开启浏览器
+     */
     public void openBrowser() {
-        //openBtn.setDisable(true);
-        CompletableFuture.runAsync(() -> seleniumTest.openBrowser(targetUrl.getText())).whenComplete((r, t) -> {
-            if (t == null) {
-                opened.set(true);
-            } else {
-                log.error("浏览器开启失败", t);
-                seleniumTest.quitBrowser();
-                //openBtn.setDisable(true);
-            }
-        });
+        CompletableFuture.runAsync(() -> seleniumApp.openBrowser(targetUrl.getText()))
+                .whenComplete((r, t) -> {
+                    if (t == null) {
+                        opened.set(true);
+                    } else {
+                        log.error("浏览器开启失败", t);
+                        seleniumApp.quitBrowser();
+                        //openBtn.setDisable(true);
+                    }
+                });
     }
 
     /**
@@ -148,14 +156,15 @@ public class MainController implements Initializable {
         //需要更改的目标字段
         String targetField = editEvent.getTableColumn().getText();
 
-        log.info("will update {} to {}", targetField, newValue);
+
         ProductConfig productConfig = ConfigUtil.configTable.get(companyIdBox.getSelectionModel().getSelectedItem(), productIdBox.getSelectionModel().getSelectedItem());
         if (Objects.nonNull(productConfig)) {
-            PreCheckConfig preCheckConfig = productConfig.getPreCheckConfig();
+            int selectIdx = preCheckConfigTable.getSelectionModel().getFocusedIndex();
+            log.info("will update {} to {} , in the {}th row", targetField, newValue, selectIdx + 1);
             try {
                 Field declaredField = PreCheckConfig.class.getDeclaredField(targetField);
                 declaredField.setAccessible(true);
-                declaredField.set(preCheckConfig, newValue);
+                declaredField.set(preCheckConfigTable.getItems().get(selectIdx), newValue);
             } catch (Exception e) {
                 log.error("update {} value to {} fail", targetField, newValue, e);
             }
@@ -164,25 +173,49 @@ public class MainController implements Initializable {
 
     public void quitBrowser() {
         if (opened.get()) {
-            CompletableFuture.runAsync(() -> seleniumTest.quitBrowser());
+            CompletableFuture.runAsync(() -> seleniumApp.quitBrowser());
         } else {
             log.warn("浏览器未开启");
         }
     }
 
     /**
-     * 自动填充
+     * 自动填充核保数据
      */
-    public void fullCheckInfo() {
-        seleniumTest.fullCheckInfo();
+    public void fullCheckInfo(ActionEvent event) {
+        seleniumApp.fullCheckInfo();
     }
 
     /**
      * 资源销毁工作
      */
     public void destroy() {
-        if (Objects.nonNull(seleniumTest)) {
-            seleniumTest.quitBrowser();
+        if (Objects.nonNull(seleniumApp)) {
+            seleniumApp.quitBrowser();
         }
+    }
+
+    public void newPage(ActionEvent event) {
+        Button button = (Button) event.getSource();
+        System.out.println(button.getText());
+        seleniumApp.newPage();
+    }
+
+    /**
+     * 添加一个 {@link PreCheckConfig}
+     */
+    public void addPreConfig() {
+        preCheckConfigTable.getItems().add(new PreCheckConfig());
+    }
+
+    public void execConfig() {
+        log.info("current exec config --> {}", JSON.toJSONString(ConfigUtil.currentConfig));
+        List<PreCheckConfig> preCheckConfigList = ConfigUtil.currentConfig.getPreCheckConfigList();
+
+        SeleniumCmdParser seleniumCmdParser = SeleniumCmdParser.newParser(seleniumApp.getDriver());
+
+        CompletableFuture.runAsync(() -> preCheckConfigList.forEach(preCheckConfig -> seleniumCmdParser
+                .parse(preCheckConfig.getLocation(), preCheckConfig.getAction(), preCheckConfig.getValues())));
+
     }
 }

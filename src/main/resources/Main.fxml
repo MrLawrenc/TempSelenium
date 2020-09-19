@@ -14,27 +14,30 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.swust.controller.MainController">
     <children>
-        <Button fx:id="openBtn" layoutX="25.0" layoutY="334.0" mnemonicParsing="false" onAction="#openBrowser" prefHeight="23.0" prefWidth="64.0" text="开启" />
-        <Button fx:id="closeBtn" layoutX="541.0" layoutY="334.0" mnemonicParsing="false" onAction="#quitBrowser" text="关闭" />
-        <Button fx:id="fullCheckBtn" layoutX="25.0" layoutY="363.0" mnemonicParsing="false" onAction="#fullCheckInfo" text="自动填充" />
-        <TextField fx:id="targetUrl" layoutX="95.0" layoutY="334.0" prefHeight="23.0" prefWidth="430.0" />
-        <Button fx:id="preCheckConfig" layoutX="14.0" layoutY="93.0" mnemonicParsing="false" text="核保前配置" />
-        <TableView fx:id="preCheckConfigList" editable="true" layoutX="95.0" layoutY="93.0" prefHeight="232.0" prefWidth="466.0">
+        <Button fx:id="openBtn" layoutX="14.0" layoutY="334.0" mnemonicParsing="false" onAction="#openBrowser" prefHeight="23.0" prefWidth="64.0" text="开启" />
+        <Button fx:id="closeBtn" layoutX="550.0" layoutY="334.0" mnemonicParsing="false" onAction="#quitBrowser" prefHeight="23.0" prefWidth="45.0" text="关闭" />
+        <Button fx:id="fullCheckBtn" layoutX="14.0" layoutY="363.0" mnemonicParsing="false" onAction="#fullCheckInfo" text="自动填充" />
+        <TextField fx:id="targetUrl" layoutX="85.0" layoutY="334.0" prefHeight="23.0" prefWidth="457.0" />
+        <Button fx:id="preCheckConfig" layoutX="14.0" layoutY="93.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="64.0" text="核保前配置" />
+        <TableView fx:id="preCheckConfigTable" editable="true" layoutX="84.0" layoutY="93.0" prefHeight="232.0" prefWidth="457.0">
             <columns>
                 <TableColumn onEditCommit="#preConfigCommit" prefWidth="124.0" text="xpath" fx:id="xpathColumn" />
                 <TableColumn fx:id="actionColumn" onEditCommit="#preConfigCommit" prefWidth="116.0" text="action" />
-                <TableColumn fx:id="valueColumn" onEditCommit="#preConfigCommit" prefWidth="115.0" text="value" />
+                <TableColumn fx:id="valueColumn" onEditCommit="#preConfigCommit" prefWidth="115.0" text="values" />
                 <TableColumn fx:id="scriptColumn" onEditCommit="#preConfigCommit" prefWidth="110.0" text="script" />
             </columns>
         </TableView>
-        <ComboBox fx:id="companyIdBox" layoutX="95.0" layoutY="48.0" prefWidth="150.0" />
-        <ComboBox fx:id="productIdBox" layoutX="411.0" layoutY="48.0" prefWidth="150.0" />
-        <Text layoutX="20.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="companyId" />
-        <Text layoutX="340.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="productId" />
+        <ComboBox fx:id="companyIdBox" layoutX="85.0" layoutY="47.0" prefWidth="150.0" />
+        <ComboBox fx:id="productIdBox" layoutX="391.0" layoutY="47.0" prefWidth="150.0" />
+        <Text layoutX="14.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="companyId" />
+        <Text layoutX="328.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="productId" />
         <Text fx:id="caseName" layoutX="27.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title" textAlignment="CENTER" wrappingWidth="545.544921875">
             <font>
                 <Font size="22.0" />
             </font>
         </Text>
+      <Button fx:id="newPageBtn" layoutX="111.0" layoutY="363.0" mnemonicParsing="false" onAction="#newPage" text="新标签页" />
+      <Button layoutX="296.0" layoutY="363.0" mnemonicParsing="false" onAction="#execConfig" text="执行样例" />
+      <Button layoutX="14.0" layoutY="139.0" mnemonicParsing="false" onAction="#addPreConfig" prefHeight="23.0" prefWidth="64.0" text="添加操作" />
     </children>
 </AnchorPane>

@@ -3,6 +3,8 @@ package com.swust.entity;
 import com.swust.controller.PreCheckConfig;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author : MrLawrenc
  * date  2020/9/18 23:03
@@ -29,5 +31,5 @@ public class ProductConfig {
      */
     private String productionUrl = "https://lmy25.wang/";
 
-    private PreCheckConfig preCheckConfig;
+    private List<PreCheckConfig> preCheckConfigList;
 }
