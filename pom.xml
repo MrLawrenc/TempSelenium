@@ -67,14 +67,39 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.70</version>
         </dependency>
+
+
+<!--        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.8.0-beta0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.26</version>
+            <version>1.8.0-beta0</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.8.0-beta0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.8.0-beta0</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
         </dependency>
 
+
         <!--各种测试数据生成,包括银行、名字、身份证、电话、地址等-->
-        <dependency>
+<!--        <dependency>
             <groupId>com.github.binarywang</groupId>
             <artifactId>java-testdata-generator</artifactId>
             <version>1.1.2</version>
@@ -92,7 +117,14 @@
                     <groupId>org.apache.commons</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>-->
+        <!--手动引入测试数据源码包，需要额外的包-->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.6</version>
         </dependency>
+
     </dependencies>
     <build>
         <finalName>DbTool-${version}</finalName>

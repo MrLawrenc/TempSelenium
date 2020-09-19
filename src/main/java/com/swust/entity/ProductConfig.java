@@ -11,6 +11,12 @@ import lombok.Data;
  */
 @Data
 public class ProductConfig {
+
+    /**
+     * 用例名
+     */
+    private String caseName;
+
     private Integer companyId;
     private Integer productId;
 

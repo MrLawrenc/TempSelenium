@@ -15,14 +15,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PreCheckConfig {
-    /**
-     * 操作
-     */
-    private String action;
+
     /**
      * 元素位置,统一通过xpath定位
      */
     private String location;
+    /**
+     * 操作
+     */
+    private String action;
 
     /**
      * 可能不存在，如当action为点击事件时

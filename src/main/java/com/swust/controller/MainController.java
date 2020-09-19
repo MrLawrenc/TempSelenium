@@ -2,8 +2,7 @@ package com.swust.controller;
 
 import com.swust.ConfigUtil;
 import com.swust.SeleniumTest;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.swust.entity.ProductConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,9 +10,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.text.Text;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 2019/12/8 19:55
  */
 @Slf4j
+@Getter
 public class MainController implements Initializable {
     @FXML
     private Button openBtn;
@@ -30,14 +36,24 @@ public class MainController implements Initializable {
     private Button closeBtn;
     @FXML
     private Button fullCheckBtn;
+    /**
+     * fix 应更改为下拉框
+     */
     @FXML
     private TextField targetUrl;
     @FXML
     private Button preCheckConfig;
+
+    /**
+     * 核保之前的配置表
+     */
     @FXML
     private TableView<PreCheckConfig> preCheckConfigList;
 
 
+    /**
+     * 每一列
+     */
     @FXML
     private TableColumn<PreCheckConfig, String> actionColumn;
     @FXML
@@ -47,10 +63,19 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn<PreCheckConfig, String> scriptColumn;
 
+    /**
+     * 公司和产品的下拉框
+     */
     @FXML
     private ComboBox<Integer> companyIdBox;
     @FXML
     private ComboBox<Integer> productIdBox;
+
+    /**
+     * 样例名字
+     */
+    @FXML
+    private Text caseName;
 
 
     private SeleniumTest seleniumTest;
@@ -65,47 +90,40 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.seleniumTest = new SeleniumTest();
-        CompletableFuture.runAsync(seleniumTest::initDriver);
-
-        targetUrl.setText("url");
+        //this.seleniumTest = new SeleniumTest();
+        //CompletableFuture.runAsync(seleniumTest::initDriver);
 
 
         ConfigUtil.initConfig();
 
-        ConfigUtil.loadCompanyAndProduct(companyIdBox, productIdBox,preCheckConfigList);
+        ConfigUtil.loadCompanyAndProduct(this);
 
-
-        initTableView();
+        //整合所有列，并初始化为一个表
+        List<TableColumn<PreCheckConfig, String>> columnList = new ArrayList<>();
+        columnList.add(xpathColumn);
+        columnList.add(actionColumn);
+        columnList.add(valueColumn);
+        columnList.add(scriptColumn);
+        initTableView(columnList);
     }
 
 
-    private void initTableView() {
+    private void initTableView(List<TableColumn<PreCheckConfig, String>> columnList) {
         //绑定属性
-        actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
-        xpathColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
-        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-        scriptColumn.setCellValueFactory(new PropertyValueFactory<>("script"));
+        Field[] fields = PreCheckConfig.class.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            //将每个字段名作为列名
+            columnList.get(i).setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
-        //可编辑
-        actionColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        scriptColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        xpathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
+            //可编辑
+            columnList.get(i).setCellFactory(TextFieldTableCell.forTableColumn());
+        }
 
         ObservableList<PreCheckConfig> data = FXCollections.observableArrayList(
                 new PreCheckConfig("Jacob", "Smith", "jacob.smith@example.com", "java脚本"),
                 new PreCheckConfig("Isabella", "Johnson", "isabella.johnson@example.com", "java脚本")
         );
         preCheckConfigList.setItems(data);
-
-        preCheckConfigList.editingCellProperty().addListener(new ChangeListener<TablePosition<PreCheckConfig, ?>>() {
-            @Override
-            public void changed(ObservableValue<? extends TablePosition<PreCheckConfig, ?>> observable, TablePosition<PreCheckConfig, ?> oldValue, TablePosition<PreCheckConfig, ?> newValue) {
-                System.out.println("sssssssssss");
-            }
-        });
     }
 
     public void openBrowser() {
@@ -119,6 +137,29 @@ public class MainController implements Initializable {
                 //openBtn.setDisable(true);
             }
         });
+    }
+
+    /**
+     * preCheckConfigList配置表更改
+     */
+    public void preConfigCommit(TableColumn.CellEditEvent<String, String> editEvent) {
+        String newValue = editEvent.getNewValue();
+
+        //需要更改的目标字段
+        String targetField = editEvent.getTableColumn().getText();
+
+        log.info("will update {} to {}", targetField, newValue);
+        ProductConfig productConfig = ConfigUtil.configTable.get(companyIdBox.getSelectionModel().getSelectedItem(), productIdBox.getSelectionModel().getSelectedItem());
+        if (Objects.nonNull(productConfig)) {
+            PreCheckConfig preCheckConfig = productConfig.getPreCheckConfig();
+            try {
+                Field declaredField = PreCheckConfig.class.getDeclaredField(targetField);
+                declaredField.setAccessible(true);
+                declaredField.set(preCheckConfig, newValue);
+            } catch (Exception e) {
+                log.error("update {} value to {} fail", targetField, newValue, e);
+            }
+        }
     }
 
     public void quitBrowser() {
@@ -140,6 +181,8 @@ public class MainController implements Initializable {
      * 资源销毁工作
      */
     public void destroy() {
-        seleniumTest.quitBrowser();
+        if (Objects.nonNull(seleniumTest)) {
+            seleniumTest.quitBrowser();
+        }
     }
 }
