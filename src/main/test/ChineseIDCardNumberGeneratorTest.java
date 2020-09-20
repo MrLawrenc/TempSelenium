@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ChineseIDCardNumberGeneratorTest {
 
-
     @Test
     public void idCard() {
         String idCard = ChineseIDCardNumberGenerator.getInstance().generate();

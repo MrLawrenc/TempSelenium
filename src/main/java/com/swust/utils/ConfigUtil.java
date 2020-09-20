@@ -1,11 +1,12 @@
 package com.swust.utils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.swust.controller.MainController;
-import com.swust.controller.PreCheckConfig;
+import com.swust.entity.PreCheckConfig;
 import com.swust.entity.ProductConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,10 +17,8 @@ import javafx.scene.text.Text;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,6 +39,7 @@ public class ConfigUtil {
      */
     public static final AtomicBoolean INIT = new AtomicBoolean(false);
 
+
     /**
      * 初始化配置，当且仅当被调用一次
      */
@@ -49,16 +49,10 @@ public class ConfigUtil {
             return;
         }
 
-        File[] allFile = new File("./").listFiles();
-        if (null == allFile || allFile.length == 0) {
-            log.warn("not find config");
-            configList = Lists.newArrayList();
+        List<File> fileList = allCaseFile(null);
+        if (CollectionUtil.isEmpty(fileList)) {
             return;
         }
-        List<File> fileList = Arrays.stream(allFile)
-                .filter(f -> f.getName().endsWith(".jfx"))
-                .peek(f -> log.info("find config file --> {}", f.getName()))
-                .collect(toList());
 
         //读取所有配置
         configList = fileList.stream().map(f -> {
@@ -97,7 +91,32 @@ public class ConfigUtil {
     }
 
 
-    public static void loadCompanyAndProduct(MainController controller) {
+    /**
+     * 筛选出符合 containsNameFilter和 以.jfx结尾的文件
+     *
+     * @param containsNameFilter 文件名包含过滤器
+     * @return 结果文件集合
+     */
+    public static List<File> allCaseFile(String containsNameFilter) {
+        File[] allFile = new File("./").listFiles();
+        if (null == allFile || allFile.length == 0) {
+            log.warn("not find config");
+            configList = Lists.newArrayList();
+            return null;
+        }
+        return Arrays.stream(allFile)
+                .filter(f -> f.getName().endsWith(".jfx"))
+                .filter(f -> {
+                    if (StringUtils.isNotEmpty(containsNameFilter)) {
+                        return f.getName().contains(containsNameFilter);
+                    }
+                    return true;
+                })
+                .peek(f -> log.info("find config file --> {}", f.getName()))
+                .collect(toList());
+    }
+
+    public static void loadCompanyAndProductByConfig(MainController controller) {
         ComboBox<Integer> companyIdBox = controller.getCompanyIdBox();
         ComboBox<Integer> productIdBox = controller.getProductIdBox();
         Set<Integer> companyIds = new HashSet<>();
@@ -137,7 +156,7 @@ public class ConfigUtil {
         for (ProductConfig config : configList) {
             if (config.getCompanyId().equals(companyId) && config.getProductId().equals(productId)) {
 
-                currentConfig=config;
+                currentConfig = config;
 
                 preCheckConfigList.getItems().addAll(config.getPreCheckConfigList());
 
@@ -147,5 +166,44 @@ public class ConfigUtil {
                 targetUrl.setText(config.getPreviewUrl());
             }
         }
+    }
+
+    /**
+     * 保存配置
+     */
+    public static void saveConfig(String caseName, Integer companyId, Integer productId, List<PreCheckConfig> preCheckConfigList) {
+        if (Objects.isNull(companyId) || Objects.isNull(productId)) {
+            return;
+        }
+
+        String caseFileName = getCaseFileName(caseName, companyId, productId);
+
+        configList.forEach(c -> {
+            if (companyId.intValue() == c.getCompanyId() && productId.intValue() == c.getProductId()) {
+                c.setPreCheckConfigList(preCheckConfigList);
+                Optional.ofNullable(allCaseFile(caseFileName))
+                        .flatMap(l -> l.stream().filter(file -> file.getName().equals(caseFileName)).findAny())
+                        .ifPresent(targetFile -> {
+                            try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                                //构件文件内容
+                                String targetInfo = c.getPreviewUrl() +
+                                        "\n" +
+                                        c.getProductionUrl() +
+                                        "\n" +
+                                        JSON.toJSONString(preCheckConfigList);
+                                fos.write(targetInfo.getBytes(StandardCharsets.UTF_8));
+                                log.info("update file {} success", caseFileName);
+                            } catch (Exception e) {
+                                log.error("update file {} fail", caseFileName);
+                            }
+                        })
+                ;
+            }
+        });
+    }
+
+    public static String getCaseFileName(String caseName, Integer companyId, Integer productId) {
+        return caseName + "#" + companyId + "_" + productId + ".jfx";
+
     }
 }

@@ -1,6 +1,5 @@
 package com.swust.entity;
 
-import com.swust.controller.PreCheckConfig;
 import lombok.Data;
 
 import java.util.List;

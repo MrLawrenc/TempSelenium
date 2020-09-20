@@ -6,6 +6,7 @@ import cn.binarywang.tools.generator.bank.BankCardNumberGenerator;
 import cn.hutool.core.util.StrUtil;
 import com.swust.handler.IdCardGenerate;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -25,6 +26,7 @@ import java.util.*;
  * 还不错
  */
 @Data
+@Slf4j
 public class SeleniumApp {
 
 
@@ -34,6 +36,24 @@ public class SeleniumApp {
         if (null == driver) {
             this.driver = new ChromeDriver();
         }
+       /* driver.get("https://www.huize.com/");
+        try {
+            TimeUnit.SECONDS.sleep(10);
+            System.out.println("start ---> ");
+
+            By xpath = By.xpath("//*[@id=\"txtSearchProduct\"]");
+          *//*  WebDriverWait wait0 = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait0.until(ExpectedConditions.presenceOfElementLocated(xpath));*//*
+
+            WebElement element = driver.findElement(xpath);
+            System.out.println("placeholder-text -->" + element.getAttribute("placeholder-text"));
+            element.sendKeys("鼎");
+            element.sendKeys(Keys.ENTER);
+            System.out.println("end  ----> ");
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
         return driver;
     }
 
@@ -155,13 +175,21 @@ public class SeleniumApp {
     }
 
     public void openBrowser(String url) {
+        if (Objects.isNull(driver)) {
+            log.error("browser has exited , maybe invoked quit() method!");
+            return;
+        }
         if (StrUtil.isEmpty(url)) {
             //外网
             // url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
             //p版
             url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
         }
-        driver.get(url);
+        try {
+            driver.get(url);
+        } catch (Exception exception) {
+            log.error("open browser fail, maybe invoked close() method!", exception);
+        }
     }
 
     public void quitBrowser() {
@@ -405,6 +433,21 @@ public class SeleniumApp {
     public static boolean exist(WebDriver driver, By by) {
         try {
             driver.findElement(by);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 判断由by构建的元素是否存在，判断结果最大延时duration
+     *
+     * @return true 存在
+     */
+    public static boolean exist(WebDriver driver, By by, Duration duration) {
+        try {
+            WebDriverWait wait0 = new WebDriverWait(driver, duration);
+            wait0.until(ExpectedConditions.presenceOfElementLocated(by));
             return true;
         } catch (Exception e) {
             return false;

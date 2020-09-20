@@ -1,8 +1,3 @@
 https://lmy25.wang/
 https://lmy25.wang/
-[{
-    "action": "click",
-    "location": "//*[@id=\"navbarSupportedContent\"]/ul/li[3]/a",
-    "values": "",
-    "script": ""
-}]
+[{"action":"click","desc":"测试保存配置","location":"//*[@id=\"navbarSupportedContent\"]/ul/li[3]/a","script":"测试保存配置","values":"测试保存配置"}]
