@@ -1,4 +1,4 @@
-import com.swust.utils.ConfigUtil;
+import com.github.mrlawrenc.utils.ConfigUtil;
 import org.junit.Test;
 
 /**

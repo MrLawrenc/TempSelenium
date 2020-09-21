@@ -1,13 +1,14 @@
-package com.swust.utils;
+package com.github.mrlawrenc.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
+import com.github.mrlawrenc.controller.MainController;
+import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.swust.controller.MainController;
-import com.swust.entity.PreCheckConfig;
-import com.swust.entity.ProductConfig;
+import com.github.mrlawrenc.entity.PreCheckConfig;
+import com.github.mrlawrenc.entity.ProductConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
@@ -16,6 +17,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +32,12 @@ import static java.util.stream.Collectors.toList;
  * date   2020/9/18 17:05
  */
 @Slf4j
+@Component
 public class ConfigUtil {
+
+    @Autowired
+    private AbstractJfxStorage<ProductConfig> jfxStorage;
+
     public static List<ProductConfig> configList;
     public static ProductConfig currentConfig;
     public static Table<Integer, Integer, ProductConfig> configTable = HashBasedTable.create();

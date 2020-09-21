@@ -1,10 +1,9 @@
-package com.swust;
+package com.github.mrlawrenc.utils;
 
 import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.ChineseMobileNumberGenerator;
 import cn.binarywang.tools.generator.bank.BankCardNumberGenerator;
 import cn.hutool.core.util.StrUtil;
-import com.swust.handler.IdCardGenerate;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
@@ -28,7 +27,6 @@ import java.util.*;
 @Data
 @Slf4j
 public class SeleniumApp {
-
 
     private WebDriver driver;
 
@@ -387,7 +385,6 @@ public class SeleniumApp {
 
             //被保人姓名和证件号码
             driver.findElement(By.name("cName_20_default_1")).sendKeys("我是被保人");
-            driver.findElement(By.name("cardNumber_20_default_1")).sendKeys(new IdCardGenerate().generateV());
             driver.findElement(By.name("cardNumber_20_default_1")).sendKeys(ChineseIDCardNumberGenerator.getInstance().generate());
 
             //被保人地址

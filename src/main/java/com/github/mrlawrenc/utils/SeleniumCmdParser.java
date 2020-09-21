@@ -1,7 +1,6 @@
-package com.swust.utils;
+package com.github.mrlawrenc.utils;
 
-import com.swust.SeleniumApp;
-import com.swust.entity.PreCheckConfig;
+import com.github.mrlawrenc.entity.PreCheckConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;

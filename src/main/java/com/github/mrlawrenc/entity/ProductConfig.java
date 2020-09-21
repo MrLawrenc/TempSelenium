@@ -1,4 +1,4 @@
-package com.swust.entity;
+package com.github.mrlawrenc.entity;
 
 import lombok.Data;
 

@@ -1,4 +1,3 @@
-import com.swust.handler.IdCardGenerate;
 import org.junit.Test;
 
 /**
@@ -8,9 +7,5 @@ import org.junit.Test;
 public class TestHandler {
     @Test
     public void testIdCard() {
-        for (int i = 0; i < 200; i++) {
-            System.out.println(new IdCardGenerate().generateV());
-            System.out.println("-------------------");
-        }
     }
 }

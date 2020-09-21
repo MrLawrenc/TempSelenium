@@ -1,5 +1,6 @@
-package com.swust.handler;
+package com.github.mrlawrenc.handler;
 
+import com.github.mrlawrenc.entity.conf.CaseConfig;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +14,7 @@ import java.util.Random;
  * <p>
  * 身份证生成器
  */
-public final class IdCardGenerate extends GenerateValueHandler {
+public final class IdCardGenerate implements AbstractGenerateValueHandler {
 
     /**
      * 生日是否随机
@@ -34,7 +35,7 @@ public final class IdCardGenerate extends GenerateValueHandler {
     }
 
     @Override
-    public String generateV() {
+    public String generate(CaseConfig caseConfig, String... args) {
         Map<String, String> code = getAreaCode();
         String areaCode = code.keySet().toArray(new String[0])[RandomUtils
                 .nextInt(0, code.size())]

@@ -1,11 +1,11 @@
-package com.swust.controller;
+package com.github.mrlawrenc.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.swust.SeleniumApp;
-import com.swust.entity.PreCheckConfig;
-import com.swust.entity.ProductConfig;
-import com.swust.utils.ConfigUtil;
-import com.swust.utils.SeleniumCmdParser;
+import com.github.mrlawrenc.utils.SeleniumApp;
+import com.github.mrlawrenc.entity.PreCheckConfig;
+import com.github.mrlawrenc.entity.ProductConfig;
+import com.github.mrlawrenc.utils.ConfigUtil;
+import com.github.mrlawrenc.utils.SeleniumCmdParser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +17,8 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -30,10 +32,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author : LiuMingyao
  * 2019/12/8 19:55
+ * <p>
+ * fxml主控制器
  */
 @Slf4j
 @Getter
-public class MainController implements Initializable {
+@Component
+public class MainController implements Initializable, DisposableBean {
     @FXML
     private Button closeBtn;
     /**
@@ -88,10 +93,14 @@ public class MainController implements Initializable {
      * 标记浏览器是否打开
      */
     private final AtomicBoolean opened = new AtomicBoolean(false);
-    /**
-     * 核保url
-     */
-    private static final String CHECK_URL = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
+
+    @Override
+    public void destroy() {
+        log.info("destroy controller");
+        if (Objects.nonNull(seleniumApp)) {
+            seleniumApp.quitBrowser();
+        }
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -170,14 +179,6 @@ public class MainController implements Initializable {
         seleniumApp.fullCheckInfo();
     }
 
-    /**
-     * 资源销毁工作
-     */
-    public void destroy() {
-        if (Objects.nonNull(seleniumApp)) {
-            seleniumApp.quitBrowser();
-        }
-    }
 
     public void newPage(ActionEvent event) {
         Button button = (Button) event.getSource();
