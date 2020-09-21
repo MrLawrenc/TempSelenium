@@ -65,9 +65,9 @@ public class SeleniumApp {
 
         //慧择核保
         //外网
-        String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
+        // String url = "https://www.huize.com/apps/cps/index/product/insure?prodId=101832&planId=104245&cuid=d7a4f903-89e5-4dd5-a486-312d64a6d4b8&aid=&encryptInsureNum=";
         //p版
-        //String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
+        String url = "https://cps.qixin18.com/apps/cps/lxr1000014/product/insure?prodId=121482&planId=122830&cuid=213567b7-4c1c-48b9-9e85-4eda6e0448d2&aid=&encryptInsureNum=aKCN_w73h-TEOqKSb6dBCQ&notifyAnswerId=3526018&isHealthSuccess=true";
         seleniumApp.openBrowser(url);
         for (int i = 0; i < 1; i++) {
             seleniumApp.fullCheckInfo();
@@ -461,7 +461,12 @@ public class SeleniumApp {
     }
 
     public void newPage(String url) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("window.open(" + url + ",\"_blank\");");
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("window.open(" + url + ",\"_blank\");");
+        } catch (Exception e) {
+            log.warn("failed to open the specified tab, open a blank tab");
+            newPage();
+        }
     }
 }

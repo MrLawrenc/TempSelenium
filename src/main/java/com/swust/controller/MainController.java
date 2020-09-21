@@ -35,8 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Getter
 public class MainController implements Initializable {
     @FXML
-    private Button openBtn;
-    @FXML
     private Button closeBtn;
     /**
      * fix 应更改为下拉框
@@ -134,22 +132,6 @@ public class MainController implements Initializable {
     }
 
     /**
-     * 开启浏览器
-     */
-    public void openBrowser() {
-        CompletableFuture.runAsync(() -> seleniumApp.openBrowser(targetUrl.getText()))
-                .whenComplete((r, t) -> {
-                    if (t == null) {
-                        opened.set(true);
-                    } else {
-                        log.error("浏览器开启失败", t);
-                        seleniumApp.quitBrowser();
-                        //openBtn.setDisable(true);
-                    }
-                });
-    }
-
-    /**
      * preCheckConfigList配置表更改
      */
     public void preConfigCommit(TableColumn.CellEditEvent<String, String> editEvent) {
@@ -200,7 +182,7 @@ public class MainController implements Initializable {
     public void newPage(ActionEvent event) {
         Button button = (Button) event.getSource();
         System.out.println(button.getText());
-        seleniumApp.newPage();
+        seleniumApp.newPage(targetUrl.getText());
     }
 
     /**
@@ -213,8 +195,8 @@ public class MainController implements Initializable {
     public void savePreConfig() {
         List<PreCheckConfig> preCheckConfigList = new ArrayList<>(preCheckConfigTable.getItems());
 
-        ConfigUtil.saveConfig(caseName.getText(),companyIdBox.getSelectionModel().getSelectedItem(),
-                productIdBox.getSelectionModel().getSelectedItem(),preCheckConfigList);
+        ConfigUtil.saveConfig(caseName.getText(), companyIdBox.getSelectionModel().getSelectedItem(),
+                productIdBox.getSelectionModel().getSelectedItem(), preCheckConfigList);
     }
 
     /**

@@ -1,6 +1,11 @@
 https://www.baidu.com/
 https://www.baidu.com/
 [
+  {
+        "action": "get",
+        "values": "https://www.baidu.com",
+        "desc":"打开指定地址"
+    },
     {
         "action": "sendKeys",
         "location": "//*[@id=\"kw\"]",
@@ -30,7 +35,7 @@ https://www.baidu.com/
         "desc":"点击搜索的第一个结果"
     },
     {
-        "action": "witch",
+        "action": "switch",
         "location": "",
         "values": "慧择保险网",
         "script": ""

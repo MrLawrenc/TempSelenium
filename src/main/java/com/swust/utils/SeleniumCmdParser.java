@@ -58,7 +58,7 @@ public final class SeleniumCmdParser {
         if (SeleniumApp.exist(webDriver, by, Duration.ofMillis(wait))) {
             actionCmd(by, method, values);
         } else {
-            log.warn("could not locate element --> {}", xpath);
+            log.error("could not locate element --> {}", xpath);
         }
     }
 
@@ -66,32 +66,45 @@ public final class SeleniumCmdParser {
      * 执行非action事件，目前支持如下事件
      * <pre>
      *     1. sleep 睡眠
-     *     2. 切换窗口
+     *     2. switch 切换窗口
+     *     3. get 在当前标签页，根据url打开一个窗口,要开新标签页参加{@link SeleniumApp#newPage()}
      * </pre>
      *
      * @return true则执行了该事件
      */
     private boolean notActionCmd(String method, String... values) {
-        switch (method) {
-            case "sleep":
-                try {
-                    TimeUnit.MILLISECONDS.sleep(Long.parseLong(values[0]));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            case "witch":
-                for (String windowHandle : webDriver.getWindowHandles()) {
-                    webDriver.switchTo().window(windowHandle);
-                    if (webDriver.getTitle().contains(values[0])) {
-                        log.info("will switch handle({}) title({})", windowHandle, webDriver.getTitle());
-                        return true;
+        try {
+            switch (method) {
+                case "get":
+                    try {
+                        webDriver.get(values[0]);
+                        log.info("open {} success", values[0]);
+                    } catch (Exception e) {
+                        log.error("open {} fail", values[0]);
                     }
-                }
-            default:
-                log.info("the current is an action event");
+                    return true;
+                case "sleep":
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(Long.parseLong(values[0]));
+                    } catch (InterruptedException ignore) {
+                    }
+                    return true;
+                case "switch":
+                    for (String windowHandle : webDriver.getWindowHandles()) {
+                        webDriver.switchTo().window(windowHandle);
+                        if (webDriver.getTitle().contains(values[0])) {
+                            log.info("will switch handle({}) title({})", windowHandle, webDriver.getTitle());
+                            return true;
+                        }
+                    }
+                default:
+                    log.info("the current is an action event");
+                    return false;
+            }
+        } catch (NumberFormatException e) {
+            log.error("noAction task is error", e);
+            return true;
         }
-        return false;
     }
 
     /**
