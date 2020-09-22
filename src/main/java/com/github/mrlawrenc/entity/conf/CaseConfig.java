@@ -1,7 +1,9 @@
 package com.github.mrlawrenc.entity.conf;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -28,4 +30,13 @@ public class CaseConfig {
      * 扩展字段
      */
     private String expandField;
+
+    /**
+     * 样例描述信息
+     */
+    private String desc;
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
 }

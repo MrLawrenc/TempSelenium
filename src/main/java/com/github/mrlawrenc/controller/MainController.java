@@ -1,10 +1,10 @@
 package com.github.mrlawrenc.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.github.mrlawrenc.utils.SeleniumApp;
-import com.github.mrlawrenc.entity.PreCheckConfig;
 import com.github.mrlawrenc.entity.ProductConfig;
-import com.github.mrlawrenc.utils.ConfigUtil;
+import com.github.mrlawrenc.entity.conf.StepCommand;
+import com.github.mrlawrenc.utils.ConfigParser;
+import com.github.mrlawrenc.utils.SeleniumApp;
 import com.github.mrlawrenc.utils.SeleniumCmdParser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -53,24 +53,24 @@ public class MainController implements Initializable, DisposableBean {
      * 核保之前的配置表
      */
     @FXML
-    private TableView<PreCheckConfig> preCheckConfigTable;
+    private TableView<StepCommand> preCheckConfigTable;
 
 
     /**
      * 每一列
      */
     @FXML
-    private TableColumn<PreCheckConfig, String> actionColumn;
+    private TableColumn<StepCommand, String> actionColumn;
     @FXML
-    private TableColumn<PreCheckConfig, String> xpathColumn;
+    private TableColumn<StepCommand, String> xpathColumn;
     @FXML
-    private TableColumn<PreCheckConfig, String> valueColumn;
+    private TableColumn<StepCommand, String> valueColumn;
     @FXML
-    private TableColumn<PreCheckConfig, String> scriptColumn;
+    private TableColumn<StepCommand, String> scriptColumn;
     @FXML
-    private TableColumn<PreCheckConfig, String> waitColumn;
+    private TableColumn<StepCommand, String> waitColumn;
     @FXML
-    private TableColumn<PreCheckConfig, String> descColumn;
+    private TableColumn<StepCommand, String> descColumn;
 
 
     /**
@@ -107,9 +107,9 @@ public class MainController implements Initializable, DisposableBean {
         this.seleniumApp = new SeleniumApp();
         CompletableFuture.runAsync(seleniumApp::initDriver);
 
-        ConfigUtil.initConfig();
+        ConfigParser.initConfig();
 
-        ConfigUtil.loadCompanyAndProductByConfig(this);
+        ConfigParser.loadCompanyAndProductByConfig(this);
 
         //整合所有列，并初始化为一个表
         initTableView(preCheckConfigTable.getColumns());
@@ -118,30 +118,30 @@ public class MainController implements Initializable, DisposableBean {
     /**
      * 配置表结构初始化
      */
-    private void initTableView(ObservableList<TableColumn<PreCheckConfig, ?>> columnList) {
+    private void initTableView(ObservableList<TableColumn<StepCommand, ?>> columnList) {
         //绑定属性
-        Field[] fields = PreCheckConfig.class.getDeclaredFields();
+        Field[] fields = StepCommand.class.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             @SuppressWarnings("unchecked")
-            TableColumn<PreCheckConfig, String> column = (TableColumn<PreCheckConfig, String>) columnList.get(i);
+            TableColumn<StepCommand, String> column = (TableColumn<StepCommand, String>) columnList.get(i);
             column.setText(fields[i].getName());
 
-            //将PreCheckConfig字段名和每一列取值进行绑定（每一列都根据字段名来取相应的值）
+            //将StepCommand字段名和每一列取值进行绑定（每一列都根据字段名来取相应的值）
             column.setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
             //设为可编辑
             column.setCellFactory(TextFieldTableCell.forTableColumn());
         }
 
-        ObservableList<PreCheckConfig> data = FXCollections.observableArrayList(
-                new PreCheckConfig("操作位置，目前是xpath定位", "操作函数", "jacob.smith@example.com", "java脚本", "最大等待时间，单位毫秒", "示例一"),
-                new PreCheckConfig("操作位置，目前是xpath定位", "操作函数", "isabella.johnson@example.com", "java脚本", "", "示例二")
+        ObservableList<StepCommand> data = FXCollections.observableArrayList(
+                new StepCommand("操作位置，目前是xpath定位", "操作函数", "jacob.smith@example.com", "java脚本", "最大等待时间，单位毫秒", "示例一"),
+                new StepCommand("操作位置，目前是xpath定位", "操作函数", "isabella.johnson@example.com", "java脚本", "", "示例二")
         );
         preCheckConfigTable.setItems(data);
     }
 
     /**
-     * preCheckConfigList配置表更改
+     * StepCommandList配置表更改
      */
     public void preConfigCommit(TableColumn.CellEditEvent<String, String> editEvent) {
         String newValue = editEvent.getNewValue();
@@ -150,12 +150,12 @@ public class MainController implements Initializable, DisposableBean {
         String targetField = editEvent.getTableColumn().getText();
 
 
-        ProductConfig productConfig = ConfigUtil.configTable.get(companyIdBox.getSelectionModel().getSelectedItem(), productIdBox.getSelectionModel().getSelectedItem());
+        ProductConfig productConfig = ConfigParser.configTable.get(companyIdBox.getSelectionModel().getSelectedItem(), productIdBox.getSelectionModel().getSelectedItem());
         if (Objects.nonNull(productConfig)) {
             int selectIdx = preCheckConfigTable.getSelectionModel().getFocusedIndex();
             log.info("will update {} to {} , in the {}th row", targetField, newValue, selectIdx + 1);
             try {
-                Field declaredField = PreCheckConfig.class.getDeclaredField(targetField);
+                Field declaredField = StepCommand.class.getDeclaredField(targetField);
                 declaredField.setAccessible(true);
                 declaredField.set(preCheckConfigTable.getItems().get(selectIdx), newValue);
             } catch (Exception e) {
@@ -187,28 +187,28 @@ public class MainController implements Initializable, DisposableBean {
     }
 
     /**
-     * 添加一个 {@link PreCheckConfig}
+     * 添加一个 {@link StepCommand}
      */
     public void addPreConfig() {
-        preCheckConfigTable.getItems().add(new PreCheckConfig());
+        preCheckConfigTable.getItems().add(new StepCommand());
     }
 
     public void savePreConfig() {
-        List<PreCheckConfig> preCheckConfigList = new ArrayList<>(preCheckConfigTable.getItems());
+        List<StepCommand> StepCommandList = new ArrayList<>(preCheckConfigTable.getItems());
 
-        ConfigUtil.saveConfig(caseName.getText(), companyIdBox.getSelectionModel().getSelectedItem(),
-                productIdBox.getSelectionModel().getSelectedItem(), preCheckConfigList);
+        ConfigParser.saveConfig(caseName.getText(), companyIdBox.getSelectionModel().getSelectedItem(),
+                productIdBox.getSelectionModel().getSelectedItem(), StepCommandList);
     }
 
     /**
      * 执行样例
      */
     public void execConfig() {
-        log.info("current exec config --> {}", JSON.toJSONString(ConfigUtil.currentConfig));
-        List<PreCheckConfig> preCheckConfigList = ConfigUtil.currentConfig.getPreCheckConfigList();
+        log.info("current exec config --> {}", JSON.toJSONString(ConfigParser.currentConfig));
+        List<StepCommand> stepCommandList = ConfigParser.currentConfig.getPreCheckConfigList();
 
         SeleniumCmdParser seleniumCmdParser = SeleniumCmdParser.newParser(seleniumApp.getDriver());
 
-        CompletableFuture.runAsync(() -> preCheckConfigList.forEach(seleniumCmdParser::parseExec));
+        CompletableFuture.runAsync(() -> stepCommandList.forEach(seleniumCmdParser::parseExec));
     }
 }

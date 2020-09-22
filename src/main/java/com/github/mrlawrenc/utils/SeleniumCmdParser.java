@@ -1,6 +1,6 @@
 package com.github.mrlawrenc.utils;
 
-import com.github.mrlawrenc.entity.PreCheckConfig;
+import com.github.mrlawrenc.entity.conf.StepCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
@@ -35,7 +35,7 @@ public final class SeleniumCmdParser {
      *
      * @param preCheckConfig 配置
      */
-    public void parseExec(PreCheckConfig preCheckConfig) {
+    public  void parseExec(StepCommand preCheckConfig) {
         String xpath = preCheckConfig.getLocation();
         String method = preCheckConfig.getAction();
         String[] values = preCheckConfig.getValues().split("#");
@@ -133,11 +133,11 @@ public final class SeleniumCmdParser {
     }
 
     /**
-     * 根据{@link PreCheckConfig}解析本次操作的最大隐式等待时间
+     * 根据{@link StepCommand}解析本次操作的最大隐式等待时间
      *
      * @return 最大隐式等待时间 单位毫秒
      */
-    private long parseWait(PreCheckConfig preCheckConfig) {
+    private long parseWait(StepCommand preCheckConfig) {
         long wait = 0;
         if (StringUtils.isNotEmpty(preCheckConfig.getWait())) {
             try {

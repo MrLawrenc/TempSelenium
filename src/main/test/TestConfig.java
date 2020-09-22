@@ -1,4 +1,4 @@
-import com.github.mrlawrenc.utils.ConfigUtil;
+import com.github.mrlawrenc.utils.ConfigParser;
 import org.junit.Test;
 
 /**
@@ -9,6 +9,6 @@ public class TestConfig {
     @Test
     public void testC() {
 
-        ConfigUtil.initConfig();
+        ConfigParser.initConfig();
     }
 }

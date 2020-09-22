@@ -13,12 +13,22 @@ import java.util.List;
  */
 public class PgStorageImpl extends AbstractJfxStorage<ProductConfig, CaseConfig> {
     @Override
-    public boolean save(ProductConfig source) {
+    public boolean save(ProductConfig source) throws Exception {
         return false;
     }
 
     @Override
     public List<CaseConfig> list() {
+        return null;
+    }
+
+    @Override
+    public CaseConfig byCaseName(String caseName) throws Exception {
+        return null;
+    }
+
+    @Override
+    public CaseConfig update(CaseConfig caseConfig) throws Exception {
         return null;
     }
 }

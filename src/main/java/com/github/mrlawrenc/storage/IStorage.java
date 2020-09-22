@@ -13,5 +13,5 @@ public interface IStorage<T> {
      * @param source 被存储资源
      * @return true 存储成功
      */
-    boolean save(T source);
+    boolean save(T source) throws Exception;
 }

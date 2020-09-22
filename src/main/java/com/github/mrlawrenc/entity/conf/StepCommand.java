@@ -1,6 +1,8 @@
 package com.github.mrlawrenc.entity.conf;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author : MrLawrenc
@@ -9,6 +11,8 @@ import lombok.Data;
  * 每一步命令
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class StepCommand {
 
     /**

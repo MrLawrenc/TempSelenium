@@ -8,7 +8,11 @@ import java.util.List;
  * <p>
  * jfx存储
  */
-public abstract class AbstractJfxStorage<T,R> implements IStorage<T> {
+public abstract class AbstractJfxStorage<T, R> implements IStorage<T> {
 
     public abstract List<R> list();
+
+    public abstract R byCaseName(String caseName) throws Exception;
+
+    public abstract R update(R r) throws Exception;
 }

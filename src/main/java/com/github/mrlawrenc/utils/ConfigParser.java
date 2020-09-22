@@ -3,9 +3,9 @@ package com.github.mrlawrenc.utils;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.mrlawrenc.controller.MainController;
-import com.github.mrlawrenc.entity.PreCheckConfig;
 import com.github.mrlawrenc.entity.ProductConfig;
 import com.github.mrlawrenc.entity.conf.CaseConfig;
+import com.github.mrlawrenc.entity.conf.StepCommand;
 import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -34,7 +34,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Slf4j
 @Component
-public class ConfigUtil {
+public class ConfigParser {
 
     @Autowired
     private AbstractJfxStorage<ProductConfig, CaseConfig> jfxStorage;
@@ -86,8 +86,8 @@ public class ConfigUtil {
                     sb.append(s);
                     s = reader.readLine();
                 }
-                List<PreCheckConfig> preCheckConfigList = JSON.parseArray(sb.toString(), PreCheckConfig.class);
-                productConfig.setPreCheckConfigList(preCheckConfigList);
+                List<StepCommand> StepCommandList = JSON.parseArray(sb.toString(), StepCommand.class);
+                productConfig.setPreCheckConfigList(StepCommandList);
             } catch (Exception e) {
                 log.error("read config fail", e);
             }
@@ -145,11 +145,11 @@ public class ConfigUtil {
 
         //绑定产品id，使得配置实时刷新
         productIdBox.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> ConfigUtil.loadPreCheckConfig(companyIdBox.getValue(), newValue,
+                (observable, oldValue, newValue) -> ConfigParser.loadStepCommand(companyIdBox.getValue(), newValue,
                         controller.getPreCheckConfigTable(), controller.getCaseName(), controller.getTargetUrl()));
     }
 
-    public static void loadPreCheckConfig(Integer companyId, Integer productId, TableView<PreCheckConfig> preCheckConfigList
+    public static void loadStepCommand(Integer companyId, Integer productId, TableView<StepCommand> StepCommandList
             , Text caseName, TextField targetUrl) {
         if (Objects.isNull(companyId)) {
             log.error("companyId must not be empty");
@@ -160,14 +160,14 @@ public class ConfigUtil {
         }
         log.info("load companyId:{} productId:{} config", companyId, productId);
         // 可以实时触发
-        preCheckConfigList.getItems().remove(0, preCheckConfigList.getItems().size());
+        StepCommandList.getItems().remove(0, StepCommandList.getItems().size());
 
         for (ProductConfig config : configList) {
             if (config.getCompanyId().equals(companyId) && config.getProductId().equals(productId)) {
 
                 currentConfig = config;
 
-                preCheckConfigList.getItems().addAll(config.getPreCheckConfigList());
+                StepCommandList.getItems().addAll(config.getPreCheckConfigList());
 
                 //加载测试用例标题
                 caseName.setText(config.getCaseName());
@@ -180,7 +180,7 @@ public class ConfigUtil {
     /**
      * 保存配置
      */
-    public static void saveConfig(String caseName, Integer companyId, Integer productId, List<PreCheckConfig> preCheckConfigList) {
+    public static void saveConfig(String caseName, Integer companyId, Integer productId, List<StepCommand> StepCommandList) {
         if (Objects.isNull(companyId) || Objects.isNull(productId)) {
             return;
         }
@@ -189,7 +189,7 @@ public class ConfigUtil {
 
         configList.forEach(c -> {
             if (companyId.intValue() == c.getCompanyId() && productId.intValue() == c.getProductId()) {
-                c.setPreCheckConfigList(preCheckConfigList);
+                c.setPreCheckConfigList(StepCommandList);
                 Optional.ofNullable(allCaseFile(caseFileName))
                         .flatMap(l -> l.stream().filter(file -> file.getName().equals(caseFileName)).findAny())
                         .ifPresent(targetFile -> {
@@ -199,7 +199,7 @@ public class ConfigUtil {
                                         "\n" +
                                         c.getProductionUrl() +
                                         "\n" +
-                                        JSON.toJSONString(preCheckConfigList);
+                                        JSON.toJSONString(StepCommandList);
                                 fos.write(targetInfo.getBytes(StandardCharsets.UTF_8));
                                 log.info("update file {} success", caseFileName);
                             } catch (Exception e) {

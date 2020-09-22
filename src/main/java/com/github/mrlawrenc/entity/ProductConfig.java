@@ -1,5 +1,6 @@
 package com.github.mrlawrenc.entity;
 
+import com.github.mrlawrenc.entity.conf.StepCommand;
 import lombok.Data;
 
 import java.util.List;
@@ -30,5 +31,5 @@ public class ProductConfig {
      */
     private String productionUrl = "https://lmy25.wang/";
 
-    private List<PreCheckConfig> preCheckConfigList;
+    private List<StepCommand> preCheckConfigList;
 }
