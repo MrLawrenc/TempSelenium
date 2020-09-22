@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>javafx_study</artifactId>
+    <artifactId>robot4java</artifactId>
     <version>1.0-SNAPSHOT</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -176,7 +176,7 @@
 
     </dependencies>
     <build>
-        <finalName>DbTool-${version}</finalName>
+        <finalName>Robot4Java-${version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
