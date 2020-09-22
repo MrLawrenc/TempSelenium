@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.mrlawrenc.config.JfxConfiguration;
 import com.github.mrlawrenc.entity.conf.StepCommand;
 import com.github.mrlawrenc.utils.ConfigParser;
+import com.github.mrlawrenc.utils.RealTimeEditTextFieldCell;
 import com.github.mrlawrenc.utils.SeleniumApp;
 import com.github.mrlawrenc.utils.SeleniumCmdParser;
 import javafx.collections.FXCollections;
@@ -13,8 +14,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.util.Callback;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -122,11 +125,12 @@ public class MainController implements Initializable, DisposableBean {
     /**
      * 配置表结构初始化
      */
+    @SuppressWarnings("unchecked")
     private void initTableView(ObservableList<TableColumn<StepCommand, ?>> columnList) {
         //绑定属性
         Field[] fields = StepCommand.class.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
-            @SuppressWarnings("unchecked")
+
             TableColumn<StepCommand, String> column = (TableColumn<StepCommand, String>) columnList.get(i);
             column.setText(fields[i].getName());
 
@@ -134,7 +138,11 @@ public class MainController implements Initializable, DisposableBean {
             column.setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
             //设为可编辑
-            column.setCellFactory(TextFieldTableCell.forTableColumn());
+            //column.setCellFactory(TextFieldTableCell.forTableColumn());
+
+            //扩展自TextFieldTableCell.forTableColumn()中的TextFieldTableCell
+            column.setCellFactory(column1 -> new RealTimeEditTextFieldCell());
+
         }
 
         ObservableList<StepCommand> data = FXCollections.observableArrayList(
@@ -142,12 +150,41 @@ public class MainController implements Initializable, DisposableBean {
                 new StepCommand("操作位置，目前是xpath定位", "操作函数", "isabella.johnson@example.com", "java脚本", "", "示例二")
         );
         commandTable.setItems(data);
+
+        //行格式设置
+        commandTable.setRowFactory(new Callback<TableView<StepCommand>, TableRow<StepCommand>>() {
+            @Override
+            public TableRow<StepCommand> call(TableView<StepCommand> stepCommandTableView) {
+                TableRow<StepCommand> row = new TableRow<>() {
+                    @Override
+                    protected void updateItem(StepCommand stepCommand, boolean empty) {
+                        super.updateItem(stepCommand, empty);
+/*
+                        if (Objects.nonNull(stepCommand) && StringUtils.isEmpty(stepCommand.getLocation())) {
+                            this.setStyle("-fx-background-color: aqua");
+                        }else {
+                            this.setStyle("-fx-background-color: brown");
+                        }*/
+
+
+                        if (Objects.nonNull(stepCommand) && !empty) {
+                            this.setBorder(new Border(new BorderStroke(Paint.valueOf("#FFB5C5"), BorderStrokeStyle.DASHED
+                                    , new CornerRadii(0.1d), new BorderWidths(2))));
+
+                            //行提示框
+                            //this.setTooltip(new Tooltip(stepCommand.getValues()+"-->"));
+                        }
+                    }
+                };
+                return row;
+            }
+        });
     }
 
     /**
      * StepCommandList配置表更改
      */
-    public void preConfigCommit(TableColumn.CellEditEvent<String, String> editEvent) {
+    public void editCommit(TableColumn.CellEditEvent<String, String> editEvent) {
         String newValue = editEvent.getNewValue();
 
         //需要更改的目标字段
@@ -171,8 +208,6 @@ public class MainController implements Initializable, DisposableBean {
             log.warn("浏览器未开启");
         }
     }
-
-
 
 
     public void newPage(ActionEvent event) {
