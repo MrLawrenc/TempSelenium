@@ -1,6 +1,7 @@
 package com.github.mrlawrenc.config;
 
 import com.github.mrlawrenc.entity.ProductConfig;
+import com.github.mrlawrenc.entity.conf.CaseConfig;
 import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import com.github.mrlawrenc.storage.FileStorageImpl;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class JfxConfiguration {
 
     @Bean
-    public AbstractJfxStorage<ProductConfig> storage() {
+    public AbstractJfxStorage<ProductConfig, CaseConfig> storage() {
         return new FileStorageImpl();
     }
 }

@@ -3,12 +3,13 @@ package com.github.mrlawrenc.utils;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.mrlawrenc.controller.MainController;
+import com.github.mrlawrenc.entity.PreCheckConfig;
+import com.github.mrlawrenc.entity.ProductConfig;
+import com.github.mrlawrenc.entity.conf.CaseConfig;
 import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.github.mrlawrenc.entity.PreCheckConfig;
-import com.github.mrlawrenc.entity.ProductConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
@@ -36,7 +37,7 @@ import static java.util.stream.Collectors.toList;
 public class ConfigUtil {
 
     @Autowired
-    private AbstractJfxStorage<ProductConfig> jfxStorage;
+    private AbstractJfxStorage<ProductConfig, CaseConfig> jfxStorage;
 
     public static List<ProductConfig> configList;
     public static ProductConfig currentConfig;
