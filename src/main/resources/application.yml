@@ -6,6 +6,6 @@ spring:
       enabled: always
 
 jfx:
-  stageTitle: hello jfxboot
+  stageTitle: Robot4Java
   openBrowser: false
 

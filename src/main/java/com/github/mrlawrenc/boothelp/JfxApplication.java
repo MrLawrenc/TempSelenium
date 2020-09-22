@@ -36,11 +36,11 @@ public class JfxApplication extends Application {
 
     @Override
     public void stop() {
-        System.out.println("stop spring context...");
+        log.info("stop spring context...");
         applicationContext.close();
-        System.out.println("stop jfx app...");
+        log.info("stop jfx app...");
         Platform.exit();
-        System.out.println("will exit jvm...");
+        log.info("will exit jvm...");
         System.exit(0);
     }
 }

@@ -172,12 +172,7 @@ public class MainController implements Initializable, DisposableBean {
         }
     }
 
-    /**
-     * 自动填充核保数据
-     */
-    public void fullCheckInfo(ActionEvent event) {
-        seleniumApp.fullCheckInfo();
-    }
+
 
 
     public void newPage(ActionEvent event) {

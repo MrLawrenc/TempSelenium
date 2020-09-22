@@ -1,1 +1,0 @@
-{"caseName":"样例二","desc":"desc","expandField":"expandField","id":1,"stepCommand":[{"action":"get","desc":"打开指定地址","location":"21254","values":"https://www.baidu.com"},{"action":"sendKeys","desc":"搜索框输入","location":"//*[@id=\"kw\"]","script":"","values":"慧择网"},{"action":"dd","desc":"测试","location":"ds","script":"k","values":"dsd","wait":"10"}]}

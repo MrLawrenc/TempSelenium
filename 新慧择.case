@@ -1,0 +1,62 @@
+{
+    "caseName":"新慧择",
+    "desc":"desc",
+    "expandField":"expandField",
+    "id":1,
+    "stepCommand":[
+         {
+        "action": "get",
+        "values": "https://www.baidu.com",
+        "desc":"打开指定地址"
+    },
+    {
+        "action": "sendKeys",
+        "location": "//*[@id=\"kw\"]",
+        "values": "慧择网",
+        "script": "",
+        "desc":"搜索框输入"
+    },
+    {
+        "action": "click",
+        "location": "//*[@id=\"su\"]",
+        "values": "这是点击事件，没有值",
+        "script": "",
+        "desc":"点击[百度搜索]"
+    },
+    {
+        "action": "sleep",
+        "location": "",
+        "values": "2000",
+        "script": "",
+        "desc":"等待搜索结果"
+    },
+    {
+        "action": "click",
+        "location": "//*[@id=\"1\"]/h3/a",
+        "values": "进入慧择官网",
+        "script": "",
+        "desc":"点击搜索的第一个结果"
+    },
+    {
+        "action": "switch",
+        "location": "",
+        "values": "慧择保险网",
+        "script": ""
+    },
+    {
+        "action": "sendKeys",
+        "location": "//*[@id=\"txtSearchProduct\"]",
+        "values": "鼎",
+        "script": "",
+        "wait":"1000",
+        "desc":"寻找慧择主页的搜索输入框，最大等待时间为1000ms"
+    },
+    {
+        "action": "board",
+        "location": "//*[@id=\"txtSearchProduct\"]",
+        "values": "ENTER",
+        "script": "",
+        "desc":"模拟键盘回车进行搜索"
+    }
+    ]
+}
