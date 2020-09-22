@@ -7,4 +7,5 @@ spring:
 
 jfx:
   stageTitle: hello jfxboot
+  openBrowser: false
 

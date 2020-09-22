@@ -8,7 +8,7 @@ import java.util.List;
  * <p>
  * jfx存储
  */
-public abstract class AbstractJfxStorage<T, R> implements IStorage<T> {
+public abstract class AbstractJfxStorage<R> implements IStorage<R> {
 
     public abstract List<R> list();
 

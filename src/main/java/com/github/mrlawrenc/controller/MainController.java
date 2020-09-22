@@ -1,7 +1,7 @@
 package com.github.mrlawrenc.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.github.mrlawrenc.entity.ProductConfig;
+import com.github.mrlawrenc.config.JfxConfiguration;
 import com.github.mrlawrenc.entity.conf.StepCommand;
 import com.github.mrlawrenc.utils.ConfigParser;
 import com.github.mrlawrenc.utils.SeleniumApp;
@@ -18,6 +18,7 @@ import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -46,14 +47,12 @@ public class MainController implements Initializable, DisposableBean {
      */
     @FXML
     private TextField targetUrl;
-    @FXML
-    private Button preCheckConfig;
 
     /**
      * 核保之前的配置表
      */
     @FXML
-    private TableView<StepCommand> preCheckConfigTable;
+    private TableView<StepCommand> commandTable;
 
 
     /**
@@ -74,12 +73,10 @@ public class MainController implements Initializable, DisposableBean {
 
 
     /**
-     * 公司和产品的下拉框
+     * 样例下拉框
      */
     @FXML
-    private ComboBox<Integer> companyIdBox;
-    @FXML
-    private ComboBox<Integer> productIdBox;
+    private ComboBox<String> caseBox;
 
     /**
      * 样例名字
@@ -87,12 +84,32 @@ public class MainController implements Initializable, DisposableBean {
     @FXML
     private Text caseName;
 
-
     private SeleniumApp seleniumApp;
+
+
+    @Autowired
+    private ConfigParser configParser;
+    @Autowired
+    private JfxConfiguration jfxConfiguration;
+
     /**
      * 标记浏览器是否打开
      */
     private final AtomicBoolean opened = new AtomicBoolean(false);
+
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        if (jfxConfiguration.isOpenBrowser()) {
+            this.seleniumApp = new SeleniumApp();
+            CompletableFuture.runAsync(seleniumApp::initDriver);
+        }
+
+        configParser.loadAllCase(this);
+
+        //整合所有列，并初始化为一个表
+        initTableView(commandTable.getColumns());
+    }
 
     @Override
     public void destroy() {
@@ -100,19 +117,6 @@ public class MainController implements Initializable, DisposableBean {
         if (Objects.nonNull(seleniumApp)) {
             seleniumApp.quitBrowser();
         }
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.seleniumApp = new SeleniumApp();
-        CompletableFuture.runAsync(seleniumApp::initDriver);
-
-        ConfigParser.initConfig();
-
-        ConfigParser.loadCompanyAndProductByConfig(this);
-
-        //整合所有列，并初始化为一个表
-        initTableView(preCheckConfigTable.getColumns());
     }
 
     /**
@@ -137,7 +141,7 @@ public class MainController implements Initializable, DisposableBean {
                 new StepCommand("操作位置，目前是xpath定位", "操作函数", "jacob.smith@example.com", "java脚本", "最大等待时间，单位毫秒", "示例一"),
                 new StepCommand("操作位置，目前是xpath定位", "操作函数", "isabella.johnson@example.com", "java脚本", "", "示例二")
         );
-        preCheckConfigTable.setItems(data);
+        commandTable.setItems(data);
     }
 
     /**
@@ -149,18 +153,14 @@ public class MainController implements Initializable, DisposableBean {
         //需要更改的目标字段
         String targetField = editEvent.getTableColumn().getText();
 
-
-        ProductConfig productConfig = ConfigParser.configTable.get(companyIdBox.getSelectionModel().getSelectedItem(), productIdBox.getSelectionModel().getSelectedItem());
-        if (Objects.nonNull(productConfig)) {
-            int selectIdx = preCheckConfigTable.getSelectionModel().getFocusedIndex();
-            log.info("will update {} to {} , in the {}th row", targetField, newValue, selectIdx + 1);
-            try {
-                Field declaredField = StepCommand.class.getDeclaredField(targetField);
-                declaredField.setAccessible(true);
-                declaredField.set(preCheckConfigTable.getItems().get(selectIdx), newValue);
-            } catch (Exception e) {
-                log.error("update {} value to {} fail", targetField, newValue, e);
-            }
+        int selectIdx = commandTable.getSelectionModel().getFocusedIndex();
+        log.info("will update {} to {} , in the {}th row", targetField, newValue, selectIdx + 1);
+        try {
+            Field declaredField = StepCommand.class.getDeclaredField(targetField);
+            declaredField.setAccessible(true);
+            declaredField.set(commandTable.getItems().get(selectIdx), newValue);
+        } catch (Exception e) {
+            log.error("update {} value to {} fail", targetField, newValue, e);
         }
     }
 
@@ -189,23 +189,21 @@ public class MainController implements Initializable, DisposableBean {
     /**
      * 添加一个 {@link StepCommand}
      */
-    public void addPreConfig() {
-        preCheckConfigTable.getItems().add(new StepCommand());
+    public void addCommand() {
+        commandTable.getItems().add(new StepCommand());
     }
 
     public void savePreConfig() {
-        List<StepCommand> StepCommandList = new ArrayList<>(preCheckConfigTable.getItems());
-
-        ConfigParser.saveConfig(caseName.getText(), companyIdBox.getSelectionModel().getSelectedItem(),
-                productIdBox.getSelectionModel().getSelectedItem(), StepCommandList);
+        configParser.saveConfig(caseName.getText(), new ArrayList<>(commandTable.getItems()));
     }
 
     /**
      * 执行样例
      */
     public void execConfig() {
-        log.info("current exec config --> {}", JSON.toJSONString(ConfigParser.currentConfig));
-        List<StepCommand> stepCommandList = ConfigParser.currentConfig.getPreCheckConfigList();
+        List<StepCommand> stepCommandList = new ArrayList<>(commandTable.getItems());
+        log.info("current exec config --> {}", JSON.toJSONString(stepCommandList));
+
 
         SeleniumCmdParser seleniumCmdParser = SeleniumCmdParser.newParser(seleniumApp.getDriver());
 

@@ -3,7 +3,6 @@ package com.github.mrlawrenc.storage;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson.JSON;
-import com.github.mrlawrenc.entity.ProductConfig;
 import com.github.mrlawrenc.entity.conf.CaseConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -24,11 +24,11 @@ import static java.util.stream.Collectors.toList;
  * 文件存储
  */
 @Slf4j
-public class FileStorageImpl extends AbstractJfxStorage<ProductConfig, CaseConfig> {
+public class FileStorageImpl extends AbstractJfxStorage<CaseConfig> {
     private final static String SUFFIX = ".case";
 
     @Override
-    public boolean save(ProductConfig source) throws Exception {
+    public boolean save(CaseConfig source) throws Exception {
         try (FileOutputStream fos = new FileOutputStream(new File("./" + source.getCaseName() + SUFFIX))) {
             fos.write(JSON.toJSONString(source).getBytes(StandardCharsets.UTF_8));
             return true;
@@ -83,15 +83,18 @@ public class FileStorageImpl extends AbstractJfxStorage<ProductConfig, CaseConfi
     public CaseConfig update(CaseConfig caseConfig) throws Exception {
         if (Objects.nonNull(caseConfig.getCaseName())) {
             CaseConfig targetBean = byCaseName(caseConfig.getCaseName());
+            log.debug("old source:{}",JSON.toJSONString(targetBean));
             if (Objects.isNull(targetBean)) {
                 throw new RuntimeException("not find file by name " + caseConfig.getCaseName());
             }
             BeanUtil.copyProperties(caseConfig, targetBean, CopyOptions.create().setIgnoreNullValue(true).setIgnoreError(true));
 
+            targetBean.setUpdateTime(LocalDateTime.now());
 
             File file = new File("./" + caseConfig.getCaseName() + SUFFIX);
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(JSON.toJSONString(targetBean).getBytes(StandardCharsets.UTF_8));
+                log.info("update config success,data:{}", JSON.toJSONString(caseConfig));
                 return targetBean;
             } catch (Exception e) {
                 log.error("update file({}) fail!", file.getName(), e);

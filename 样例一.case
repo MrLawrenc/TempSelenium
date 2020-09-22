@@ -1,0 +1,20 @@
+{
+    "id":1,
+    "caseName":"样例一",
+    "expandField":"expandField",
+    "desc":"desc",
+    "stepCommand":[
+        {
+            "action":"get",
+            "values":"https://www.baidu.com",
+            "desc":"打开指定地址"
+        },
+        {
+            "action":"sendKeys",
+            "location":"//*[@id=\"kw\"]",
+            "values":"慧择网",
+            "script":"",
+            "desc":"搜索框输入"
+        }
+    ]
+}

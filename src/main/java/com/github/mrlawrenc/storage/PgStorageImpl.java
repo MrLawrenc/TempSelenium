@@ -1,7 +1,6 @@
 package com.github.mrlawrenc.storage;
 
 import com.github.mrlawrenc.entity.conf.CaseConfig;
-import com.github.mrlawrenc.entity.ProductConfig;
 
 import java.util.List;
 
@@ -11,9 +10,9 @@ import java.util.List;
  * <p>
  * PgSql存储
  */
-public class PgStorageImpl extends AbstractJfxStorage<ProductConfig, CaseConfig> {
+public class PgStorageImpl extends AbstractJfxStorage<CaseConfig> {
     @Override
-    public boolean save(ProductConfig source) throws Exception {
+    public boolean save(CaseConfig source) throws Exception {
         return false;
     }
 

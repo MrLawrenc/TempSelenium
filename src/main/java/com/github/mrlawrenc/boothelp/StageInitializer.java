@@ -1,5 +1,6 @@
 package com.github.mrlawrenc.boothelp;
 
+import com.github.mrlawrenc.config.JfxConfiguration;
 import com.github.mrlawrenc.controller.MainController;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -30,13 +31,13 @@ public class StageInitializer implements ApplicationListener<StageInitializer.St
     @Value("classpath:/title.jpg")
     private Resource titleResource;
 
-    @Value("${jfx.stageTitle:无}")
-    private String stageTitle;
+    private final JfxConfiguration jfxConfiguration;
 
     private final ApplicationContext applicationContext;
 
-    public StageInitializer(ApplicationContext applicationContext) {
+    public StageInitializer(ApplicationContext applicationContext, JfxConfiguration jfxConfiguration) {
         this.applicationContext = applicationContext;
+        this.jfxConfiguration = jfxConfiguration;
     }
 
     @Override
@@ -49,7 +50,7 @@ public class StageInitializer implements ApplicationListener<StageInitializer.St
 
             stage.getIcons().add(new Image(titleResource.getInputStream()));
             stage.setScene(new Scene(parent));
-            stage.setTitle(stageTitle);
+            stage.setTitle(jfxConfiguration.getStageTitle());
             stage.show();
 
             //openOther(stage);
@@ -84,11 +85,11 @@ public class StageInitializer implements ApplicationListener<StageInitializer.St
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/title.jpg")));
 
         stage.setOnCloseRequest(e -> {
-            try {
-                controller.destroy();
-            } catch (Exception ex) {
-                log.error("pre destroy fail", ex);
-            }
+//            try {
+//                controller.destroy();
+//            } catch (Exception ex) {
+//                log.error("pre destroy fail", ex);
+//            }
             Platform.exit();
         });
         stage.show();
