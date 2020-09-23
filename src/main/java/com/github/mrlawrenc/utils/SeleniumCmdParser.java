@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public final class SeleniumCmdParser {
+
     private final WebDriver webDriver;
 
 
@@ -35,7 +36,7 @@ public final class SeleniumCmdParser {
      *
      * @param preCheckConfig 配置
      */
-    public  void parseExec(StepCommand preCheckConfig) {
+    public void parseExec(StepCommand preCheckConfig) {
         String xpath = preCheckConfig.getLocation();
         String method = preCheckConfig.getAction();
         String[] values = preCheckConfig.getValues().split("#");

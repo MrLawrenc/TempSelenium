@@ -1,23 +1,22 @@
 package com.github.mrlawrenc.utils;
 
+import com.github.mrlawrenc.entity.conf.CmdEnum;
 import com.github.mrlawrenc.entity.conf.StepCommand;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,9 +32,17 @@ import java.util.Objects;
 public class RealTimeEditTextFieldCell extends TextFieldTableCell<StepCommand, String> {
 
     private TextField textField;
+    private TableColumn<StepCommand, String> column;
+    private Label label = new Label();
+    private HBox box;
+    private Tooltip tooltip;
 
-    public RealTimeEditTextFieldCell() {
+    public RealTimeEditTextFieldCell(TableColumn<StepCommand, String> column) {
         super(new DefaultStringConverter());
+        this.column = column;
+
+       /* AnchorPane pane = (AnchorPane) column.getTableView().getParent();
+        pane.getChildren().addAll(label);*/
     }
 
     @Override
@@ -43,15 +50,36 @@ public class RealTimeEditTextFieldCell extends TextFieldTableCell<StepCommand, S
         super.startEdit();
         try {
             if (Objects.isNull(textField)) {
-
+                //反射拿值
                 Field field = TextFieldTableCell.class.getDeclaredField("textField");
                 field.setAccessible(true);
                 this.textField = (TextField) field.get(this);
-                log.debug("表格编辑控件子类赋值");
+
+                //输入参数过滤
+/*                textField.setTextFormatter(new TextFormatter<>(change -> {
+                    if (change.getText().matches("[a-z]*]")) {
+                        return change;
+                    }
+                    return null;
+                }));*/
+
+
                 textField.textProperty().addListener(new ChangeListener<String>() {
                     @Override
                     public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-                        System.out.println("新值....." + newValue);
+                        if ("location".equals(column.getText())) {
+                            CmdEnum[] cmdEnums = CmdEnum.values();
+                            StringBuilder cmdList = new StringBuilder();
+                            for (CmdEnum cmdEnum : cmdEnums) {
+                                if (cmdEnum.getCmd().contains(newValue)) {
+                                    cmdList.append(cmdEnum.getCmd()).append("\n");
+                                }
+                            }
+
+                            label.setLayoutX(textField.getLayoutX() + 10);
+                            label.setLayoutY(textField.getLayoutY() - 10);
+                            label.setText(cmdList.toString());
+                        }
                     }
                 });
 
@@ -69,6 +97,8 @@ public class RealTimeEditTextFieldCell extends TextFieldTableCell<StepCommand, S
     @Override
     public void commitEdit(String s) {
         super.commitEdit(s);
+
+        //textField.setTooltip(null);
     }
 
     @Override
@@ -84,14 +114,16 @@ public class RealTimeEditTextFieldCell extends TextFieldTableCell<StepCommand, S
             // this.setTooltip(new Tooltip("提示:" + s));
 
             //可以放自定义控件
-            ComboBox<String> box = new ComboBox<>();
-            List<String> list=new ArrayList<>();
+           /* ComboBox<String> box = new ComboBox<>();
+            List<String> list = new ArrayList<>();
             list.add("s");
             list.add("d");
             box.setItems(FXCollections.observableList(list));
             Tooltip tooltip = new Tooltip();
             tooltip.setGraphic(box);
-            this.setTooltip(tooltip);
+            //this.setTooltip(tooltip);*/
+
+
         }
     }
 }

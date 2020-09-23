@@ -141,7 +141,7 @@ public class MainController implements Initializable, DisposableBean {
             //column.setCellFactory(TextFieldTableCell.forTableColumn());
 
             //扩展自TextFieldTableCell.forTableColumn()中的TextFieldTableCell
-            column.setCellFactory(column1 -> new RealTimeEditTextFieldCell());
+            column.setCellFactory(RealTimeEditTextFieldCell::new);
 
         }
 

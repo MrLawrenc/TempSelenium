@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toMap;
 @Component
 public class ConfigParser {
 
+
     @Autowired
     private AbstractJfxStorage<CaseConfig> jfxStorage;
 
