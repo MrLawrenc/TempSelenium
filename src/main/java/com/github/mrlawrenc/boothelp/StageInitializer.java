@@ -10,11 +10,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,29 +24,32 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class StageInitializer implements ApplicationListener<StageInitializer.StageReadyEvent> {
-    @Value("classpath:/Main.fxml")
-    private Resource chartResource;
-    @Value("classpath:/title.jpg")
-    private Resource titleResource;
+
 
     private final JfxConfiguration jfxConfiguration;
 
     private final ApplicationContext applicationContext;
+    private final MainController controller;
 
-    public StageInitializer(ApplicationContext applicationContext, JfxConfiguration jfxConfiguration) {
+    public StageInitializer(ApplicationContext applicationContext, JfxConfiguration jfxConfiguration
+            , MainController controller) {
         this.applicationContext = applicationContext;
         this.jfxConfiguration = jfxConfiguration;
+        this.controller = controller;
     }
 
     @Override
     public void onApplicationEvent(StageReadyEvent stageReadyEvent) {
         Stage stage = stageReadyEvent.getStage();
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(chartResource.getURL());
+            FXMLLoader fxmlLoader = new FXMLLoader(jfxConfiguration.getMainFxml().getURL());
             fxmlLoader.setControllerFactory(applicationContext::getBean);
+
+            controller.setStage(stage);
+
             Parent parent = fxmlLoader.load();
 
-            stage.getIcons().add(new Image(titleResource.getInputStream()));
+            stage.getIcons().add(new Image(jfxConfiguration.getTitleResource().getInputStream()));
             stage.setScene(new Scene(parent));
             stage.setTitle(jfxConfiguration.getStageTitle());
             stage.show();

@@ -15,32 +15,44 @@
 
 <AnchorPane prefHeight="491.0" prefWidth="794.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.mrlawrenc.controller.MainController">
     <children>
-        <Button fx:id="closeBtn" layoutX="720.0" layoutY="334.0" mnemonicParsing="false" onAction="#quitBrowser" prefHeight="23.0" prefWidth="57.0" text="关闭" />
-        <TextField fx:id="targetUrl" layoutX="85.0" layoutY="334.0" prefHeight="23.0" prefWidth="624.0" />
-        <Button layoutX="14.0" layoutY="93.0" mnemonicParsing="false" onAction="#savePreConfig" prefHeight="23.0" prefWidth="64.0" text="保存配置" />
-        <TableView fx:id="commandTable" editable="true" layoutX="84.0" layoutY="93.0" prefHeight="236.0" prefWidth="693.0">
+        <TextField fx:id="valueGeneratorPath" layoutX="68.0" layoutY="120.0" prefHeight="23.0" prefWidth="260.0" />
+        <Button layoutX="714.0" layoutY="166.0" mnemonicParsing="false" onAction="#savePreConfig" prefHeight="23.0" prefWidth="64.0" text="保存配置" />
+        <TableView fx:id="commandTable" editable="true" layoutX="14.0" layoutY="166.0" prefHeight="236.0" prefWidth="693.0">
             <columns>
-                <TableColumn onEditCommit="#editCommit" prefWidth="124.0" text="location" fx:id="xpathColumn" />
-                <TableColumn fx:id="actionColumn" onEditCommit="#editCommit" prefWidth="116.0" text="action" />
-                <TableColumn fx:id="valueColumn" onEditCommit="#editCommit" prefWidth="115.0" text="values" />
-                <TableColumn fx:id="scriptColumn" onEditCommit="#editCommit" prefWidth="110.0" text="script" />
-                <TableColumn fx:id="waitColumn" onEditCommit="#editCommit" prefWidth="110.0" text="wait" />
-                <TableColumn fx:id="descColumn" onEditCommit="#editCommit" prefWidth="110.0" text="desc" />
+                <TableColumn onEditCommit="#editCommit" prefWidth="120.0" resizable="false" sortable="false" text="location" fx:id="xpathColumn" />
+                <TableColumn fx:id="actionColumn" onEditCommit="#editCommit" prefWidth="120.0" sortable="false" text="action" />
+                <TableColumn fx:id="valueColumn" onEditCommit="#editCommit" prefWidth="120.0" resizable="false" sortable="false" text="values" />
+                <TableColumn fx:id="scriptColumn" onEditCommit="#editCommit" prefWidth="120.0" resizable="false" sortable="false" text="script" />
+                <TableColumn fx:id="waitColumn" onEditCommit="#editCommit" prefWidth="120.0" resizable="false" sortable="false" text="wait" />
+                <TableColumn fx:id="descColumn" onEditCommit="#editCommit" prefWidth="120.0" resizable="false" sortable="false" text="desc" />
             </columns>
         </TableView>
-        <ComboBox fx:id="caseBox" layoutX="85.0" layoutY="47.0" prefHeight="28.0" prefWidth="693.0" />
-        <Text layoutX="11.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="样例" textAlignment="CENTER" wrappingWidth="70.0">
-            <font>
-                <Font size="18.0" />
-            </font>
-        </Text>
-        <Text fx:id="caseName" layoutX="14.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Title" textAlignment="CENTER" wrappingWidth="776.544921875">
+        <ComboBox fx:id="caseBox" layoutX="14.0" layoutY="53.0" prefHeight="23.0" prefWidth="693.0" />
+        <Text fx:id="caseName" layoutX="14.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="样例" textAlignment="CENTER" wrappingWidth="776.544921875">
             <font>
                 <Font size="22.0" />
             </font>
         </Text>
-        <Button layoutX="14.0" layoutY="334.0" mnemonicParsing="false" onAction="#newPage" text="新标签页" />
-        <Button layoutX="296.0" layoutY="363.0" mnemonicParsing="false" onAction="#execConfig" text="执行样例" />
-        <Button layoutX="14.0" layoutY="139.0" mnemonicParsing="false" onAction="#addCommand" prefHeight="23.0" prefWidth="64.0" text="添加空行" />
+        <Button layoutX="341.0" layoutY="120.0" mnemonicParsing="false" onAction="#selectFile" text="选择" />
+        <Button layoutX="714.0" layoutY="234.0" mnemonicParsing="false" onAction="#execConfig" text="执行样例" />
+        <Button layoutX="714.0" layoutY="202.0" mnemonicParsing="false" onAction="#addCommand" prefHeight="23.0" prefWidth="64.0" text="添加空行" />
+      <TextField fx:id="scriptName" layoutX="465.0" layoutY="120.0" prefHeight="23.0" prefWidth="242.0" />
+      <Button layoutX="714.0" layoutY="120.0" mnemonicParsing="false" onAction="#importGenerator" prefHeight="23.0" prefWidth="64.0" text="导入" />
+      <Text layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="脚本导入" textAlignment="CENTER" wrappingWidth="98.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="13.0" layoutY="136.0" strokeType="OUTSIDE" strokeWidth="0.0" text="路径" textAlignment="CENTER" wrappingWidth="47.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Text>
+      <Text layoutX="410.0" layoutY="136.0" strokeType="OUTSIDE" strokeWidth="0.0" text="名字" textAlignment="CENTER" wrappingWidth="47.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Text>
+      <Button layoutX="714.0" layoutY="53.0" mnemonicParsing="false" onAction="#createCase" prefHeight="23.0" prefWidth="64.0" text="创建" />
     </children>
 </AnchorPane>

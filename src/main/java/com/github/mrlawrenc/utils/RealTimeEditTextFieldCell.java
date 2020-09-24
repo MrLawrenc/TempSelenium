@@ -55,12 +55,11 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
         this.msgInputTip = msgInputTip;
         this.textField = new TextField();
-
         if (msgInputTip) {
             listView = new ListView<>();
             listView.setEditable(false);
-            listView.setMaxWidth(column.getWidth());
-            listView.setMaxHeight(80);
+            listView.prefWidthProperty().bind(textField.widthProperty());
+
             listView.setItems(locationList);
             vBox.getChildren().addAll(textField, listView);
         } else {
@@ -74,9 +73,7 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
         textField.setText(getText());
 
-
         this.setGraphic(vBox);
-
 
         if (Objects.nonNull(listView)) {
             textField.textProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -88,7 +85,7 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
                 }
             });
             listView.getSelectionModel().selectedItemProperty().addListener(
-                    (ov, old_val, new_val) -> textField.setText(new_val));
+                    (ov, oldVal, newVal) -> textField.setText(newVal));
 
         }
         //绑定快捷键
@@ -125,10 +122,6 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
                     //触发下一个单元格编辑事件
                     RealTimeEditTextFieldCell cell = (RealTimeEditTextFieldCell) columns.get(i + 1).getUserData();
-
-
-
-
                 });
             }
         });
@@ -137,7 +130,6 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
     @Override
     public void commitEdit(String s) {
-        System.out.println("commit：" + s);
         super.commitEdit(s);
         setText(s);
         textField.cancelEdit();
@@ -146,16 +138,16 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
     @Override
     public void cancelEdit() {
+        log.info("cancelEdit");
         super.cancelEdit();
         textField.cancelEdit();
         this.setGraphic(null);
     }
 
+
     @Override
     public void updateItem(String s, boolean empty) {
         super.updateItem(s, empty);
-        if (!empty) {
-            setText(s);
-        }
+        setText(s);
     }
 }

@@ -14,22 +14,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,14 +42,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @Getter
 @Component
+
 public class MainController implements Initializable, DisposableBean {
+    @Setter
+    private Stage stage;
     @FXML
     private Button closeBtn;
     /**
      * fix 应更改为下拉框
      */
     @FXML
-    private TextField targetUrl;
+    private TextField valueGeneratorPath;
+    @FXML
+    private TextField scriptName;
+
 
     /**
      * 核保之前的配置表
@@ -134,6 +140,7 @@ public class MainController implements Initializable, DisposableBean {
             TableColumn<StepCommand, String> column = (TableColumn<StepCommand, String>) columnList.get(i);
             column.setText(fields[i].getName());
 
+            column.setSortable(false);
             //将StepCommand字段名和每一列取值进行绑定（每一列都根据字段名来取相应的值）
             column.setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
@@ -164,14 +171,6 @@ public class MainController implements Initializable, DisposableBean {
                             this.setStyle("-fx-background-color: brown");
                         }*/
 
-
-                        if (Objects.nonNull(stepCommand) && !empty) {
-                            this.setBorder(new Border(new BorderStroke(Paint.valueOf("#FFB5C5"), BorderStrokeStyle.DASHED
-                                    , new CornerRadii(0.1d), new BorderWidths(2))));
-
-                            //行提示框
-                            //this.setTooltip(new Tooltip(stepCommand.getValues()+"-->"));
-                        }
                     }
                 };
             }
@@ -207,10 +206,56 @@ public class MainController implements Initializable, DisposableBean {
     }
 
 
-    public void newPage(ActionEvent event) {
+    public void selectFile(ActionEvent event) {
         Button button = (Button) event.getSource();
         System.out.println(button.getText());
-        seleniumApp.newPage(targetUrl.getText());
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("导入值生成器脚本");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All File", "*.*"),
+                new FileChooser.ExtensionFilter("CLASS ", "*.class"),
+                new FileChooser.ExtensionFilter("JAVA", "*.java"),
+                new FileChooser.ExtensionFilter("JAR", "*.jar"),
+
+                new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+                new FileChooser.ExtensionFilter("GIF", "*.gif"),
+                new FileChooser.ExtensionFilter("BMP", "*.bmp"),
+                new FileChooser.ExtensionFilter("PNG", "*.png")
+
+        );
+        File file = fileChooser.showOpenDialog(stage);
+        if (Objects.nonNull(file)) {
+            valueGeneratorPath.setText(file.getAbsolutePath());
+        }
+    }
+
+    /**
+     * 创建一个新用例
+     */
+    public void createCase() throws Exception {
+        TextInputDialog dialog = new TextInputDialog(UUID.randomUUID().toString());
+
+        dialog.getDialogPane().setGraphic(new ImageView(jfxConfiguration.getTitleResource().getURL().toString()));
+
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().clear();
+
+        dialog.setTitle("创建一个新的用例");
+        dialog.setHeaderText(null);
+        dialog.setContentText("请输入你的用例名:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(r -> {
+            System.out.println(r);
+            //todo create
+        });
+
+    }
+
+    public void importGenerator() {
+        log.info("start import {} script,path : {}", scriptName.getText(), valueGeneratorPath.getText());
+        //todo load file
     }
 
     /**
