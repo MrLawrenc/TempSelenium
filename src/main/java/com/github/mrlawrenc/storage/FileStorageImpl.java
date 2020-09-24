@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson.JSON;
 import com.github.mrlawrenc.entity.conf.CaseConfig;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
 
@@ -24,8 +27,15 @@ import static java.util.stream.Collectors.toList;
  * 文件存储
  */
 @Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileStorageImpl extends AbstractJfxStorage<CaseConfig> {
     private final static String SUFFIX = ".case";
+
+    /**
+     * 过滤器
+     */
+    private Supplier<Boolean> filter;
 
     @Override
     public boolean save(CaseConfig source) throws Exception {
@@ -44,12 +54,12 @@ public class FileStorageImpl extends AbstractJfxStorage<CaseConfig> {
 
         return Arrays.stream(files)
                 .filter(f -> f.getName().endsWith(SUFFIX))
-//                .filter(f -> {
-//                    if (StringUtils.isNotEmpty(containsNameFilter)) {
-//                        return f.getName().contains(containsNameFilter);
-//                    }
-//                    return true;
-//                })
+                .filter(f -> {
+                    if (Objects.nonNull(filter)) {
+                        return filter.get();
+                    }
+                    return true;
+                })
                 .peek(f -> log.info("find config file --> {}", f.getName()))
                 .map(f -> {
                     try (FileInputStream fio = new FileInputStream(f)) {
@@ -83,7 +93,7 @@ public class FileStorageImpl extends AbstractJfxStorage<CaseConfig> {
     public CaseConfig update(CaseConfig caseConfig) throws Exception {
         if (Objects.nonNull(caseConfig.getCaseName())) {
             CaseConfig targetBean = byCaseName(caseConfig.getCaseName());
-            log.debug("old source:{}",JSON.toJSONString(targetBean));
+            log.debug("old source:{}", JSON.toJSONString(targetBean));
             if (Objects.isNull(targetBean)) {
                 throw new RuntimeException("not find file by name " + caseConfig.getCaseName());
             }

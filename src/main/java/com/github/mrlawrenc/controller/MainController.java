@@ -137,12 +137,10 @@ public class MainController implements Initializable, DisposableBean {
             //将StepCommand字段名和每一列取值进行绑定（每一列都根据字段名来取相应的值）
             column.setCellValueFactory(new PropertyValueFactory<>(fields[i].getName()));
 
-            //设为可编辑
-            //column.setCellFactory(TextFieldTableCell.forTableColumn());
-
             //扩展自TextFieldTableCell.forTableColumn()中的TextFieldTableCell
-            column.setCellFactory(RealTimeEditTextFieldCell::new);
+            //column.setCellFactory(RealTimeEditTextFieldCell::new);
 
+            column.setCellFactory(c -> new RealTimeEditTextFieldCell(c, column.getText().equals("location")));
         }
 
         ObservableList<StepCommand> data = FXCollections.observableArrayList(
@@ -155,7 +153,7 @@ public class MainController implements Initializable, DisposableBean {
         commandTable.setRowFactory(new Callback<TableView<StepCommand>, TableRow<StepCommand>>() {
             @Override
             public TableRow<StepCommand> call(TableView<StepCommand> stepCommandTableView) {
-                TableRow<StepCommand> row = new TableRow<>() {
+                return new TableRow<>() {
                     @Override
                     protected void updateItem(StepCommand stepCommand, boolean empty) {
                         super.updateItem(stepCommand, empty);
@@ -176,13 +174,12 @@ public class MainController implements Initializable, DisposableBean {
                         }
                     }
                 };
-                return row;
             }
         });
     }
 
     /**
-     * StepCommandList配置表更改
+     * 配置表更改
      */
     public void editCommit(TableColumn.CellEditEvent<String, String> editEvent) {
         String newValue = editEvent.getNewValue();

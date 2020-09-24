@@ -2,21 +2,19 @@ package com.github.mrlawrenc.utils;
 
 import com.github.mrlawrenc.entity.conf.CmdEnum;
 import com.github.mrlawrenc.entity.conf.StepCommand;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Label;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-import javafx.util.converter.DefaultStringConverter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
@@ -29,101 +27,135 @@ import java.util.Objects;
  * @see javafx.scene.control.cell.ComboBoxTableCell#forTableColumn(StringConverter, Object[])
  */
 @Slf4j
-public class RealTimeEditTextFieldCell extends TextFieldTableCell<StepCommand, String> {
+public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
-    private TextField textField;
-    private TableColumn<StepCommand, String> column;
-    private Label label = new Label();
-    private HBox box;
-    private Tooltip tooltip;
+    /**
+     * 是否有输入提示
+     */
+    private final boolean msgInputTip;
+    /**
+     * 提示列表
+     */
+    private final ObservableList<String> locationList = FXCollections.observableArrayList();
 
-    public RealTimeEditTextFieldCell(TableColumn<StepCommand, String> column) {
-        super(new DefaultStringConverter());
+    /**
+     * 可编辑的单元格控件
+     */
+    private final TextField textField;
+
+    private final TableColumn<StepCommand, String> column;
+    private final VBox vBox;
+    private ListView<String> listView;
+
+
+    public RealTimeEditTextFieldCell(TableColumn<StepCommand, String> column, boolean msgInputTip) {
         this.column = column;
+        this.column.setUserData(this);
+        this.vBox = new VBox();
 
-       /* AnchorPane pane = (AnchorPane) column.getTableView().getParent();
-        pane.getChildren().addAll(label);*/
+        this.msgInputTip = msgInputTip;
+        this.textField = new TextField();
+
+        if (msgInputTip) {
+            listView = new ListView<>();
+            listView.setEditable(false);
+            listView.setMaxWidth(column.getWidth());
+            listView.setMaxHeight(80);
+            listView.setItems(locationList);
+            vBox.getChildren().addAll(textField, listView);
+        } else {
+            vBox.getChildren().addAll(textField);
+        }
     }
 
     @Override
     public void startEdit() {
         super.startEdit();
-        try {
-            if (Objects.isNull(textField)) {
-                //反射拿值
-                Field field = TextFieldTableCell.class.getDeclaredField("textField");
-                field.setAccessible(true);
-                this.textField = (TextField) field.get(this);
 
-                //输入参数过滤
-/*                textField.setTextFormatter(new TextFormatter<>(change -> {
-                    if (change.getText().matches("[a-z]*]")) {
-                        return change;
+        textField.setText(getText());
+
+
+        this.setGraphic(vBox);
+
+
+        if (Objects.nonNull(listView)) {
+            textField.textProperty().addListener((observableValue, oldValue, newValue) -> {
+                locationList.clear();
+                for (CmdEnum cmdEnum : CmdEnum.values()) {
+                    if (cmdEnum.getCmd().contains(newValue)) {
+                        locationList.add(cmdEnum.getCmd());
                     }
-                    return null;
-                }));*/
+                }
+            });
+            listView.getSelectionModel().selectedItemProperty().addListener(
+                    (ov, old_val, new_val) -> textField.setText(new_val));
 
+        }
+        //绑定快捷键
+        textField.setOnKeyPressed(keyEvent -> {
 
-                textField.textProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-                        if ("location".equals(column.getText())) {
-                            CmdEnum[] cmdEnums = CmdEnum.values();
-                            StringBuilder cmdList = new StringBuilder();
-                            for (CmdEnum cmdEnum : cmdEnums) {
-                                if (cmdEnum.getCmd().contains(newValue)) {
-                                    cmdList.append(cmdEnum.getCmd()).append("\n");
-                                }
-                            }
-
-                            label.setLayoutX(textField.getLayoutX() + 10);
-                            label.setLayoutY(textField.getLayoutY() - 10);
-                            label.setText(cmdList.toString());
-                        }
+            if (keyEvent.getCode() == KeyCode.DOWN && Objects.nonNull(listView)) {
+                int size = listView.getItems().size();
+                if (size - 1 == listView.getSelectionModel().getSelectedIndex()) {
+                    listView.getSelectionModel().select(0);
+                } else {
+                    listView.getSelectionModel().select(listView.getSelectionModel().getSelectedIndex() + 1);
+                }
+            } else if (keyEvent.getCode() == KeyCode.ENTER) {
+                if (Objects.nonNull(listView)) {
+                    int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+                    if (selectedIndex == -1) {
+                        commitEdit(textField.getText());
+                    } else {
+                        commitEdit(listView.getSelectionModel().getSelectedItem());
                     }
-                });
-
-                textField.setOnKeyPressed(keyEvent -> {
-                    if (keyEvent.getCode() == KeyCode.TAB) {
-                        System.out.println("##########tab##########");
+                } else {
+                    commitEdit(textField.getText());
+                }
+            } else if (keyEvent.getCode() == KeyCode.TAB) {
+                cancelEdit();
+                Platform.runLater(() -> {
+                    ObservableList<TableColumn<StepCommand, ?>> columns = column.getTableView().getColumns();
+                    //
+                    int i = columns.indexOf(column);
+                    if (i + 1 == columns.size()) {
+                        i = 0;
                     }
+
+
+                    //触发下一个单元格编辑事件
+                    RealTimeEditTextFieldCell cell = (RealTimeEditTextFieldCell) columns.get(i + 1).getUserData();
+
+
+
+
                 });
             }
-        } catch (Exception e) {
-            log.error("", e);
-        }
+        });
+
     }
 
     @Override
     public void commitEdit(String s) {
+        System.out.println("commit：" + s);
         super.commitEdit(s);
-
-        //textField.setTooltip(null);
+        setText(s);
+        textField.cancelEdit();
+        this.setGraphic(null);
     }
 
     @Override
     public void cancelEdit() {
         super.cancelEdit();
+        textField.cancelEdit();
+        this.setGraphic(null);
     }
 
     @Override
     public void updateItem(String s, boolean empty) {
         super.updateItem(s, empty);
-
-        if (!empty && StringUtils.isNotEmpty(s)) {
-            // this.setTooltip(new Tooltip("提示:" + s));
-
-            //可以放自定义控件
-           /* ComboBox<String> box = new ComboBox<>();
-            List<String> list = new ArrayList<>();
-            list.add("s");
-            list.add("d");
-            box.setItems(FXCollections.observableList(list));
-            Tooltip tooltip = new Tooltip();
-            tooltip.setGraphic(box);
-            //this.setTooltip(tooltip);*/
-
-
+        if (!empty) {
+            setText(s);
         }
     }
 }
