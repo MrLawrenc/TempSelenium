@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class CaseConfig {
     /**
      * 用例命令合集
      */
-    private List<StepCommand> stepCommand;
+    private List<StepCommand> stepCommand=new ArrayList<>();
 
     /**
      * 扩展字段

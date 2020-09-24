@@ -8,6 +8,7 @@ import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,6 +57,9 @@ public class ConfigParser {
         idBox.setItems(FXCollections.observableArrayList(configMap.keySet()));
 
         idBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (StringUtils.isEmpty(newValue)) {
+                return;
+            }
             CaseConfig caseConfig = configMap.get(newValue);
             //更新配置
             controller.getCommandTable().setItems(FXCollections.observableArrayList(caseConfig.getStepCommand()));
@@ -63,6 +67,12 @@ public class ConfigParser {
             //更新标题
             controller.getCaseName().setText(caseConfig.getCaseName());
         });
+    }
+
+    public void refresh(MainController controller) {
+        init();
+        ComboBox<String> idBox = controller.getCaseBox();
+        idBox.setItems(FXCollections.observableArrayList(configMap.keySet()));
     }
 
     /**

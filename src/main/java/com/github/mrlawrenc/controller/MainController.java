@@ -2,7 +2,9 @@ package com.github.mrlawrenc.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.github.mrlawrenc.config.JfxConfiguration;
+import com.github.mrlawrenc.entity.conf.CaseConfig;
 import com.github.mrlawrenc.entity.conf.StepCommand;
+import com.github.mrlawrenc.storage.AbstractJfxStorage;
 import com.github.mrlawrenc.utils.ConfigParser;
 import com.github.mrlawrenc.utils.RealTimeEditTextFieldCell;
 import com.github.mrlawrenc.utils.SeleniumApp;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -100,6 +103,8 @@ public class MainController implements Initializable, DisposableBean {
     private ConfigParser configParser;
     @Autowired
     private JfxConfiguration jfxConfiguration;
+    @Autowired
+    private AbstractJfxStorage jfxStorage;
 
     /**
      * 标记浏览器是否打开
@@ -247,8 +252,16 @@ public class MainController implements Initializable, DisposableBean {
         dialog.setContentText("请输入你的用例名:");
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(r -> {
-            System.out.println(r);
-            //todo create
+            CaseConfig caseConfig = new CaseConfig();
+            caseConfig.setCaseName(r);
+            caseConfig.setCreateTime(LocalDateTime.now());
+            try {
+                boolean success = jfxStorage.save(caseConfig);
+                log.info("create new case({}) {}", r, success ? "success" : "fail");
+                configParser.refresh(this);
+            } catch (Exception exception) {
+                log.error("create new case({}) fail", r);
+            }
         });
 
     }
