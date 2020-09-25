@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.stream.Collectors.toMap;
@@ -82,12 +83,17 @@ public class ConfigParser {
         //更新缓存
         CaseConfig caseConfig = configMap.get(caseName);
 
+        if (Objects.isNull(caseConfig)) {
+            log.error("find config fail by caseName({})", caseName);
+            return;
+        }
+
         caseConfig.setStepCommand(commandList);
 
         try {
             jfxStorage.update(caseConfig);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("update case({}) fail", caseName);
         }
 
     }

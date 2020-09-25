@@ -5,12 +5,17 @@ import com.github.mrlawrenc.entity.conf.StepCommand;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -24,6 +29,7 @@ import java.util.Objects;
  * @see javafx.scene.control.cell.ComboBoxTableCell#forTableColumn(StringConverter, Object[])
  */
 @Slf4j
+@Getter
 public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
     /**
@@ -74,6 +80,9 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
         if (Objects.nonNull(listView)) {
             textField.textProperty().addListener((observableValue, oldValue, newValue) -> {
+                if (StringUtils.isEmpty(newValue)) {
+                    return;
+                }
                 locationList.clear();
                 for (CmdEnum cmdEnum : CmdEnum.values()) {
                     if (cmdEnum.getCmd().contains(newValue)) {
@@ -81,20 +90,22 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
                     }
                 }
             });
-            listView.getSelectionModel().selectedItemProperty().addListener(
-                    (ov, oldVal, newVal) -> textField.setText(newVal));
+
+            //listView确定之后更新textField
+            listView.setOnKeyPressed(keyEvent -> {
+                if (keyEvent.getCode() == KeyCode.ENTER) {
+                    textField.setText(listView.getSelectionModel().getSelectedItem());
+                    textField.requestFocus();
+                }
+            });
 
         }
         //绑定快捷键
         textField.setOnKeyPressed(keyEvent -> {
 
             if (keyEvent.getCode() == KeyCode.DOWN && Objects.nonNull(listView)) {
-                int size = listView.getItems().size();
-                if (size - 1 == listView.getSelectionModel().getSelectedIndex()) {
-                    listView.getSelectionModel().select(0);
-                } else {
-                    listView.getSelectionModel().select(listView.getSelectionModel().getSelectedIndex() + 1);
-                }
+                //切换焦点
+                listView.requestFocus();
             } else if (keyEvent.getCode() == KeyCode.ENTER) {
                 if (Objects.nonNull(listView)) {
                     int selectedIndex = listView.getSelectionModel().getSelectedIndex();
@@ -110,15 +121,11 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
                 cancelEdit();
                 Platform.runLater(() -> {
                     ObservableList<TableColumn<StepCommand, ?>> columns = column.getTableView().getColumns();
-                    //
                     int i = columns.indexOf(column);
                     if (i + 1 == columns.size()) {
                         i = 0;
                     }
-
-
-                    //触发下一个单元格编辑事件
-                    RealTimeEditTextFieldCell cell = (RealTimeEditTextFieldCell) columns.get(i + 1).getUserData();
+                    System.out.println("第几列:" + (i + 1));
                 });
             }
         });
@@ -135,7 +142,6 @@ public class RealTimeEditTextFieldCell extends TableCell<StepCommand, String> {
 
     @Override
     public void cancelEdit() {
-        log.info("cancelEdit");
         super.cancelEdit();
         textField.cancelEdit();
         this.setGraphic(null);

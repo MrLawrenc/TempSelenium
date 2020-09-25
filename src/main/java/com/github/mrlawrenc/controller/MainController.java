@@ -14,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -115,11 +116,16 @@ public class MainController implements Initializable, DisposableBean {
             this.seleniumApp = new SeleniumApp();
             CompletableFuture.runAsync(seleniumApp::initDriver);
         }
-
         configParser.loadAllCase(this);
 
         //整合所有列，并初始化为一个表
         initTableView(commandTable.getColumns());
+
+        caseName.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent.getClickCount() == 2) {
+                log.info("暂不支持重命名");
+            }
+        });
     }
 
     @Override
@@ -268,14 +274,18 @@ public class MainController implements Initializable, DisposableBean {
     public void importGenerator() {
         log.info("start import {} script,path : {}", scriptName.getText(), valueGeneratorPath.getText());
         //todo load file
-        ValueGeneratorParser.parse(new File(valueGeneratorPath.getText()),loader);
+        ValueGeneratorParser.parse(new File(valueGeneratorPath.getText()), loader);
     }
 
     /**
      * 添加一个 {@link StepCommand}
      */
     public void addCommand() {
-        commandTable.getItems().add(new StepCommand());
+        StepCommand stepCommand = new StepCommand();
+        stepCommand.setAction("ignore");
+        commandTable.getItems().add(stepCommand);
+
+        commandTable.getSelectionModel().select(commandTable.getItems().size() - 1);
     }
 
     public void savePreConfig() {
@@ -294,4 +304,5 @@ public class MainController implements Initializable, DisposableBean {
 
         CompletableFuture.runAsync(() -> stepCommandList.forEach(seleniumCmdParser::parseExec));
     }
+
 }
