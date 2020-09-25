@@ -5,10 +5,7 @@ import com.github.mrlawrenc.config.JfxConfiguration;
 import com.github.mrlawrenc.entity.conf.CaseConfig;
 import com.github.mrlawrenc.entity.conf.StepCommand;
 import com.github.mrlawrenc.storage.AbstractJfxStorage;
-import com.github.mrlawrenc.utils.ConfigParser;
-import com.github.mrlawrenc.utils.RealTimeEditTextFieldCell;
-import com.github.mrlawrenc.utils.SeleniumApp;
-import com.github.mrlawrenc.utils.SeleniumCmdParser;
+import com.github.mrlawrenc.utils.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -105,7 +102,7 @@ public class MainController implements Initializable, DisposableBean {
     private JfxConfiguration jfxConfiguration;
     @Autowired
     private AbstractJfxStorage jfxStorage;
-
+    private ScriptLoader loader = new ScriptLoader();
     /**
      * 标记浏览器是否打开
      */
@@ -127,6 +124,7 @@ public class MainController implements Initializable, DisposableBean {
 
     @Override
     public void destroy() {
+        loader = null;
         log.info("destroy controller");
         if (Objects.nonNull(seleniumApp)) {
             seleniumApp.quitBrowser();
@@ -236,6 +234,7 @@ public class MainController implements Initializable, DisposableBean {
         }
     }
 
+
     /**
      * 创建一个新用例
      */
@@ -269,6 +268,7 @@ public class MainController implements Initializable, DisposableBean {
     public void importGenerator() {
         log.info("start import {} script,path : {}", scriptName.getText(), valueGeneratorPath.getText());
         //todo load file
+        ValueGeneratorParser.parse(new File(valueGeneratorPath.getText()),loader);
     }
 
     /**
