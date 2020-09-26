@@ -103,7 +103,6 @@ public class MainController implements Initializable, DisposableBean {
     private JfxConfiguration jfxConfiguration;
     @Autowired
     private AbstractJfxStorage jfxStorage;
-    private ScriptLoader loader = new ScriptLoader();
     /**
      * 标记浏览器是否打开
      */
@@ -130,7 +129,6 @@ public class MainController implements Initializable, DisposableBean {
 
     @Override
     public void destroy() {
-        loader = null;
         log.info("destroy controller");
         if (Objects.nonNull(seleniumApp)) {
             seleniumApp.quitBrowser();
@@ -274,7 +272,7 @@ public class MainController implements Initializable, DisposableBean {
     public void importGenerator() {
         log.info("start import {} script,path : {}", scriptName.getText(), valueGeneratorPath.getText());
         //todo load file
-        ValueGeneratorParser.parse(new File(valueGeneratorPath.getText()), loader);
+        ValueGeneratorParser.parse(new File(valueGeneratorPath.getText()));
     }
 
     /**
