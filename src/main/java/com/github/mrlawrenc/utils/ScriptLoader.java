@@ -8,7 +8,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.*;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -71,17 +70,26 @@ public class ScriptLoader extends ClassLoader {
         loadJavaFile0(writer, null, javaCode);
     }
 
-    public void loadJavaFile(File file) {
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(file);
-        } catch (IOException e) {
-            log.error("write to writer fail", e);
-            return;
-        }
+    public static void main(String[] args) throws Exception {
+        //获取系统Java编译器
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        //获取Java文件管理器
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        //定义要编译的源文件
+        File file = new File("F:\\tmp\\Test.java");
+        //通过源文件获取到要编译的Java类源码迭代器，包括所有内部类，其中每个类都是一个 JavaFileObject，也被称为一个汇编单元
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjects(file);
+        //生成编译任务
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, compilationUnits);
+        //执行编译任务
+        task.call();
 
-        loadJavaFile0(fileWriter, file, null);
-       /* compileJavaCode(fileWriter, file, null);
+        fileManager.close();
+    }
+
+    public void loadJavaFile(File file) {
+
+        compileJava(file);
 
         String pkg = "";
         try (BufferedReader fr = new BufferedReader(new FileReader(file))) {
@@ -91,6 +99,7 @@ public class ScriptLoader extends ClassLoader {
                     pkg = line.substring(7).replaceAll(" ", "");
                     break;
                 }
+                line = fr.readLine();
             }
         } catch (Exception e) {
             log.error("parse package name fail");
@@ -98,52 +107,21 @@ public class ScriptLoader extends ClassLoader {
         }
         log.info("parse package name success, name={}", pkg);
 
-
-        loadClassByPath("E:\\temp\\test\\Test.class", pkg);*/
-    }
-
-
-    public void compileJavaCode(Writer writer, File javaFile, String javaCode) {
+        String absolutePath = file.getAbsolutePath();
+        String classPath = absolutePath.substring(0, absolutePath.lastIndexOf(File.separator) + 1) + "Test.class";
+        Class<?> result = loadClassByPath(classPath, pkg);
         try {
-            // 编译
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8);
-
-            Iterable<? extends JavaFileObject> fileObject;
-            if (StringUtils.isEmpty(javaCode)) {
-                fileObject = fileManager.getJavaFileObjects(javaFile);
-            } else {
-                fileObject = fileManager.getJavaFileObjects(javaCode);
-            }
-            JavaCompiler.CompilationTask task = compiler.getTask(writer, fileManager, null, null, null, fileObject);
-            task.call();
-            fileManager.close();
-
+            System.out.println("result:" + result.newInstance().toString());
         } catch (Exception e) {
-            log.error("", e);
+            e.printStackTrace();
         }
     }
 
-    public void loadClassByPath(String classPath, String pkgPreName) {
-        String clzName = classPath.substring(classPath.lastIndexOf(File.separator) + 1, classPath.lastIndexOf("."));
-        String fullClzName = StringUtils.isEmpty(pkgPreName) ? clzName : pkgPreName + "." + clzName;
 
-        Class<?> clazz = null;
-        try {
-            URL[] urls = new URL[]{new URL(new File(classPath).getParentFile().toURL().toString())};
-            URLClassLoader ucl = new URLClassLoader(urls);
-            clazz = ucl.loadClass(fullClzName);
-        } catch (Exception e) {
-            log.error("load class({}) fail", clzName, e);
-            return;
-        }
-
-        log.info("load success class:{}", clazz);
-        for (Field field : clazz.getDeclaredFields()) {
-            System.out.println(field.getType() + "  " + field.getName());
-        }
-    }
-
+    /**
+     * 废弃
+     */
+    @Deprecated
     public void loadJavaFile0(Writer writer, File javaFile, String javaCode) {
         try {
             // 编译
@@ -162,13 +140,74 @@ public class ScriptLoader extends ClassLoader {
 
 
             // 加载运行 ClassLoader只能加载bin目录下的class文件
-            URL[] urls = new URL[]{new URL("file:/E:\\temp\\test")};
+            URL[] urls = new URL[]{new URL("file:/F:\\tmp\\")};
             URLClassLoader ucl = new URLClassLoader(urls);
             Class<?> clazz = ucl.loadClass("Test");
 
             log.info("load success class:{}", clazz);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 根据class文件路径加载
+     *
+     * @param classPath   class文件全路径
+     * @param packageName 包名
+     * @return load之后的class文件
+     */
+    public Class<?> loadClassByPath(String classPath, String packageName) {
+        String clzName = classPath.substring(classPath.lastIndexOf(File.separator) + 1, classPath.lastIndexOf("."));
+        String fullClzName = StringUtils.isEmpty(packageName) ? clzName : packageName + "." + clzName;
+        try {
+            URL[] urls = new URL[]{new URL(new File(classPath).getParentFile().toURL().toString())};
+            URLClassLoader ucl = new URLClassLoader(urls);
+            Class<?> r = ucl.loadClass(fullClzName);
+            log.info("load success class:{}", fullClzName);
+            return r;
+        } catch (Exception e) {
+            log.info("load fail class:{}", fullClzName);
+            return null;
+        }
+    }
+
+    /**
+     * 编译java文件到当前file所处目录
+     *
+     * @param file java源文件
+     */
+    public void compileJava(File file) {
+        compileJava(file, null);
+    }
+
+    /**
+     * 编译java文件到writer
+     *
+     * @param file java源文件
+     */
+    public void compileJava(File file, Writer writer) {
+        try {
+            //获取系统Java编译器
+            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            //获取Java文件管理器
+            StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+            //定义要编译的源文件
+            //File file = new File("F:\\tmp\\Test.java");
+
+            //通过源文件获取到要编译的Java类源码迭代器，包括所有内部类，其中每个类都是一个 JavaFileObject，也被称为一个汇编单元
+            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjects(file);
+            //生成编译任务 第一个参数是输出到哪个位置，为null会默认输出到java文件同级
+            JavaCompiler.CompilationTask task = compiler.getTask(writer, fileManager, null, null, null, compilationUnits);
+
+            //执行编译任务
+            task.call();
+
+            fileManager.close();
+
+        } catch (Exception e) {
+            log.error("compile java fail", e);
         }
     }
 }

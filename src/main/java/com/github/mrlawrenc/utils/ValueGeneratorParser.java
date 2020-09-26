@@ -4,6 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author hz20035009-逍遥
@@ -12,6 +17,18 @@ import java.io.File;
 @Slf4j
 public class ValueGeneratorParser {
 
+    /**blog-content-box
+     * p 是页数，一个搜索结果一般20页
+     * https://so.csdn.net/so/search/s.do?q=java&t=all&platform=pc&p=40&s=&tm=&v=&l=&u=&ft=
+     */
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newBuilder().build();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://blog.csdn.net/qq_40695278/article/details/89073220"))
+                .GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        System.out.println(response.body());
+    }
 
     public static void parse(File file, ScriptLoader loader) {
         String name = file.getName();
@@ -22,7 +39,7 @@ public class ValueGeneratorParser {
 
         switch (extensionName) {
             case "java":
-                loadJavaFile(file,loader);
+                loadJavaFile(file, loader);
                 break;
             case "class":
                 loadClassFile(file, loader);
