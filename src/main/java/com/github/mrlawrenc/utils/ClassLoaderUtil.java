@@ -41,10 +41,6 @@ public class ClassLoaderUtil extends ClassLoader {
 
 
 
-    public static void main(String[] args) {
-        System.out.println(File.separator);
-        System.out.println(Matcher.quoteReplacement(File.separator));
-    }
 
     private void loadClass(String classFullName, File file) {
         if (file.isDirectory()) {

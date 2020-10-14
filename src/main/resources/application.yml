@@ -1,11 +1,12 @@
 spring:
   main:
     web-application-type: none
+  #日志输出配置
   output:
     ansi:
       enabled: always
 
 jfx:
   stageTitle: Robot4Java
-  openBrowser: false
+  openBrowser: true
 

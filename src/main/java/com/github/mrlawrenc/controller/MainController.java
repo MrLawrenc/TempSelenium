@@ -102,7 +102,10 @@ public class MainController implements Initializable, DisposableBean {
     @Autowired
     private JfxConfiguration jfxConfiguration;
     @Autowired
-    private AbstractJfxStorage jfxStorage;
+    private AbstractJfxStorage<CaseConfig> jfxStorage;
+
+    private final CompileUtil compileUtil = new CompileUtil();
+    private final ClassLoaderUtil loaderUtil = new ClassLoaderUtil();
     /**
      * 标记浏览器是否打开
      */
@@ -164,7 +167,7 @@ public class MainController implements Initializable, DisposableBean {
         commandTable.setItems(data);
 
         //行格式设置
-        commandTable.setRowFactory(new Callback<TableView<StepCommand>, TableRow<StepCommand>>() {
+        commandTable.setRowFactory(new Callback<>() {
             @Override
             public TableRow<StepCommand> call(TableView<StepCommand> stepCommandTableView) {
                 return new TableRow<>() {

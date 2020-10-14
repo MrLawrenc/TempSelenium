@@ -233,13 +233,16 @@ public class SeleniumApp {
         // 查找目标元素是否加载出来了（已经在页面DOM中存在）
         wait.until(ExpectedConditions.presenceOfElementLocated(By.name("cName_10")));
 
-        //为谁投保
+        //为谁投保 //*[@id="insurantType"]/div[2]/ul
         By insurantType = By.id("insurantType");
         if (exist(driver, insurantType)) {
             driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[1]/b")).click();
             // TimeUnit.SECONDS.sleep(1);
-            List<WebElement> insurantTypeElement = driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[2]/ul")).findElements(By.tagName("li"));
-            insurantTypeElement.get(random.nextInt(insurantTypeElement.size())).click();
+            List<WebElement> insureType = driver.findElement(By.xpath("//*[@id=\"insurantType\"]/div[2]/ul")).findElements(By.tagName("li"));
+            System.out.println(insureType.stream().reduce("【为谁投保】", (r, item) -> r + " " + item.getText(), (r, item) -> r));
+            WebElement webElement = insureType.get(random.nextInt(insureType.size()));
+            System.out.println("【为谁投保】选择的是:" + webElement.getText());
+            webElement.click();
         }
 
 
@@ -300,7 +303,7 @@ public class SeleniumApp {
             List<WebElement> cityLiList = areaList.get(1).findElements(By.tagName("li"));
             cityLiList.get(new Random().nextInt(cityLiList.size() - 1) + 1).click();
         } catch (InterruptedException e) {
-            System.out.println("没有选二级地区");
+            System.out.println("【没有选投保人二级地区】");
         }
 
         try {
@@ -309,7 +312,7 @@ public class SeleniumApp {
             List<WebElement> areaListNode = areaList.get(2).findElements(By.tagName("li"));
             areaListNode.get(new Random().nextInt(areaListNode.size() - 1) + 1).click();
         } catch (Exception ignore) {
-            System.out.println("没有选三级地区");
+            System.out.println("【没有选投保人三级地区】");
         }
 
 
@@ -348,14 +351,14 @@ public class SeleniumApp {
             driver.findElement(By.name("cardPeriodEnd_20_default_1")).click();
             //计算身份证有效期 fix(假设10年)
             int a = 10;
-            String end = Integer.valueOf(date.substring(0, 4)) + a + "";
-            System.out.println("目标年:" + end);
+            String targetYear = Integer.valueOf(date.substring(0, 4)) + a + "";
+
             //先选中 年
             success:
             while (true) {
                 List<WebElement> yearTdList = driver.findElement(By.className("calendar-year-body")).findElements(By.tagName("td"));
                 for (WebElement webElement : yearTdList) {
-                    if (end.equals(webElement.getText())) {
+                    if (targetYear.equals(webElement.getText())) {
                         webElement.click();
                         break success;
                     }
@@ -370,6 +373,7 @@ public class SeleniumApp {
                 month = month.substring(1);
             }
             month += "月";
+
             List<WebElement> td = driver.findElement(By.className("calendar-month-table-box")).findElements(By.tagName("td"));
             for (WebElement webElement : td) {
                 if (webElement.getText().equals(month)) {
@@ -379,7 +383,9 @@ public class SeleniumApp {
             }
             //选中 日
             String targetDate = Integer.valueOf(date.substring(0, 4)) + a + date.substring(4);
+            System.out.println("【被保人证件有效期截止】:" + targetYear+"-"+ month+"-"+targetDate);
             List<WebElement> tdList2 = driver.findElements(By.tagName("td"));
+            System.out.println("【被保人证件有效期截止】:" + targetYear+"-"+month);
             tdList2.stream().filter(t -> targetDate.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
 
 
