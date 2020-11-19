@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author : MrLawrenc
@@ -60,7 +61,7 @@ public class SeleniumApp {
             //安联宠物险可以这样上传文件
             driver.get("https://cps.xiebao18.com/wr1000968/product/insure-121329-123132.html?cuid=fe783fea-1e37-42e9-819e-fd3b2690d375&isFormDetail=1");
             //新建一个Robot类的对象 springboot使用可以加入-Djava.awt.headless=false参数
-            Robot robot = new Robot();
+            Robot robot = OperatorSingletonFactory.createRobot();
             Thread.sleep(2000);
   /*          WebElement element = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div/div[2]/form/div[1]/dl[4]/div/dd[3]/ul/li"));
             element.click();
@@ -103,6 +104,29 @@ public class SeleniumApp {
         }
 
         return driver;
+    }
+
+    /**
+     * 将当前窗口切换为H5,只针对chrome
+     * 切换到h5步骤如下
+     * <pre>
+     *     1. f12
+     *     2. ctrl shift m
+     * </pre>
+     */
+    public void switchH5() throws Exception {
+        Robot robot = OperatorSingletonFactory.createRobot();
+        robot.keyPress(KeyEvent.VK_F12);
+        robot.keyRelease(KeyEvent.VK_F12);
+
+        TimeUnit.MILLISECONDS.sleep(10);
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_SHIFT);
+        robot.keyPress(KeyEvent.VK_M);
+
+        robot.keyRelease(KeyEvent.VK_M);
+        robot.keyRelease(KeyEvent.VK_SHIFT);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
     public static void main(String[] args) throws Exception {
