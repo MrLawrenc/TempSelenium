@@ -13,8 +13,11 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.List;
 import java.util.*;
 
 /**
@@ -52,6 +55,53 @@ public class SeleniumApp {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }*/
+
+        try {
+            //安联宠物险可以这样上传文件
+            driver.get("https://cps.xiebao18.com/wr1000968/product/insure-121329-123132.html?cuid=fe783fea-1e37-42e9-819e-fd3b2690d375&isFormDetail=1");
+            //新建一个Robot类的对象 springboot使用可以加入-Djava.awt.headless=false参数
+            Robot robot = new Robot();
+            Thread.sleep(2000);
+  /*          WebElement element = driver.findElement(By.xpath("/html/body/div[2]/div/div[1]/div/div[2]/form/div[1]/dl[4]/div/dd[3]/ul/li"));
+            element.click();
+            Thread.sleep(3000);
+
+            Thread.sleep(1000);
+            //按下Ctrl+V
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_V);
+            //释放Ctrl+V
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+            robot.keyRelease(KeyEvent.VK_V);
+            Thread.sleep(2000);
+
+            //点击回车
+            robot.keyPress(KeyEvent.VK_ENTER);
+            robot.keyRelease(KeyEvent.VK_ENTER);*/
+
+            //f12  ctrl shift m 切换到h5
+            Thread.sleep(2000);
+
+            robot.keyPress(KeyEvent.VK_F12);
+            robot.keyRelease(KeyEvent.VK_F12);
+
+
+            // 不需要禁用小键盘也能使用
+            // Toolkit.getDefaultToolkit().setLockingKeyState(KeyEvent.VK_NUM_LOCK, false);
+
+            Thread.sleep(500);
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_SHIFT);
+            robot.keyPress(KeyEvent.VK_M);
+
+            robot.keyRelease(KeyEvent.VK_M);
+            robot.keyRelease(KeyEvent.VK_SHIFT);
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return driver;
     }
 
@@ -383,9 +433,9 @@ public class SeleniumApp {
             }
             //选中 日
             String targetDate = Integer.valueOf(date.substring(0, 4)) + a + date.substring(4);
-            System.out.println("【被保人证件有效期截止】:" + targetYear+"-"+ month+"-"+targetDate);
+            System.out.println("【被保人证件有效期截止】:" + targetYear + "-" + month + "-" + targetDate);
             List<WebElement> tdList2 = driver.findElements(By.tagName("td"));
-            System.out.println("【被保人证件有效期截止】:" + targetYear+"-"+month);
+            System.out.println("【被保人证件有效期截止】:" + targetYear + "-" + month);
             tdList2.stream().filter(t -> targetDate.equals(t.getAttribute("title"))).findAny().ifPresent(WebElement::click);
 
 
